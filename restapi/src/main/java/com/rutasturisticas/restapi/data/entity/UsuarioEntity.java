@@ -1,13 +1,18 @@
 package com.rutasturisticas.restapi.data.entity;
 
-import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity(name = "usuarios")
-public class UsuarioEntity implements Serializable {
+public class UsuarioEntity implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,6 +29,7 @@ public class UsuarioEntity implements Serializable {
 	@Column(name = "biografia", nullable = true)
 	private String biografia;
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -48,12 +54,40 @@ public class UsuarioEntity implements Serializable {
 		this.biografia = biografía;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+
+		List<GrantedAuthority> roles = Arrays.asList(new Authority("GUIA_TURISTICO"));
+		return roles;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
 	}
 
 }

@@ -3,10 +3,10 @@ package com.rutasturisticas.restapi.service;
 import java.io.File;
 import java.io.IOException;
 
+import javax.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import jakarta.transaction.Transactional;
 
 @Service
 @Transactional

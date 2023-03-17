@@ -2,7 +2,7 @@ package com.rutasturisticas.restapi.data.entity;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Embeddable;
+import javax.persistence.Embeddable;
 
 @Embeddable
 public class CoordenadasEntityPK implements Serializable {

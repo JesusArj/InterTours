@@ -2,14 +2,10 @@ package com.rutasturisticas.restapi.data.entity;
 
 import java.io.Serializable;
 
-//import org.locationtech.jts.awt.PointShapeFactory.Point;
-
-//import org.locationtech.jts.geom.Point;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 
 @Entity(name = "coordenadas")
 @IdClass(CoordenadasEntityPK.class)
