@@ -1,9 +1,13 @@
 import { useEffect } from "react";
 import "./App.css";
 import Cookies from "universal-cookie";
+import { Route, Routes } from "react-router-dom";
 import { useLocalState } from "./util/useLocalStorage";
+import Dashboard from "./Dashboard";
+import Homepage from "./Homepage";
 
 function App() {
+
   const [jwt, setJwt] = useLocalState("", "jwt");
 
   useEffect(() => {
@@ -28,11 +32,11 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      {" "}
-      <h1> Hello World! </h1>
-      <div> JWT Value is {jwt} </div>
-    </div>
+    <Routes>
+      <Route path="/dashboard" element={ <Dashboard/> }/> 
+      <Route path="/" element={ <Homepage/> } />
+    </Routes>
+
   );
 }
 
