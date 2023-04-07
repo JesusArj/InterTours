@@ -14,7 +14,7 @@ import com.rutasturisticas.restapi.dto.RutaDTO;
 import com.rutasturisticas.restapi.service.RutaService;
 
 @RestController
-@RequestMapping("/rutas")
+@RequestMapping("/api/rutas")
 public class RutaController {
 
 	@Autowired

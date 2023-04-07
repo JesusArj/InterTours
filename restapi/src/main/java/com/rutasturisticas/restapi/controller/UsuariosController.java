@@ -12,17 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.rutasturisticas.restapi.service.UsuariosService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 public class UsuariosController {
 
 	@Autowired
 	private UsuariosService usuariosService;
-	
 
 	@PutMapping("/updateAvatar")
 	public ResponseEntity<String> updateAvatar(@RequestParam("file") MultipartFile file) {
@@ -37,6 +33,5 @@ public class UsuariosController {
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
-	
 
 }

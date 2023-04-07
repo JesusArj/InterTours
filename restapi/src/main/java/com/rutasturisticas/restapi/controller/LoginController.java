@@ -22,7 +22,7 @@ import com.rutasturisticas.restapi.util.JwtUtil;
 import ch.qos.logback.core.util.Duration;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class LoginController {
 
 	@Autowired
