@@ -6,7 +6,6 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from '@mui/joy/Input';
 import { Sheet } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
-import { textAlign } from "@mui/system";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -14,7 +13,7 @@ const Login = () => {
   const [jwt, setJwt] = useLocalState("", "jwt");
 
   if (jwt) {
-    window.location.href = "/dashboard";
+    window.location.href = "/mis-rutas";
   }
 
   function sendLoginRequest() {
@@ -53,10 +52,10 @@ const Login = () => {
   <Sheet
           sx={{
             width: 300,
-            mx: 'auto', // margin left & right
-            my: 4, // margin top & botom
-            py: 3, // padding top & bottom
-            px: 2, // padding left & right
+            mx: 'auto', 
+            my: 4, 
+            py: 3, 
+            px: 2, 
             display: 'flex',
             flexDirection: 'column',
             gap: 2,

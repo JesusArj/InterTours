@@ -20,6 +20,9 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { DrawerHeader } from "./DrawerHeader";
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { useNavigate } from "react-router-dom";
+import Cookie from "universal-cookie";
+import { useState } from "react";
 
 const drawerWidth = 240;
 
@@ -61,9 +64,11 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
+
+
 export default function PersistentDrawerLeft({ children }) {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -71,7 +76,17 @@ export default function PersistentDrawerLeft({ children }) {
 
   const handleDrawerClose = () => {
     setOpen(false);
-  };
+  }
+
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    const cookie = new Cookie();
+    cookie.remove("jwt");
+    localStorage.removeItem("jwt");
+    navigate('/login');
+  }
+
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -114,20 +129,26 @@ export default function PersistentDrawerLeft({ children }) {
         </DrawerHeader>
         <Divider />
         <List>
-          {["Nueva Ruta", "Mis Rutas"].map((text, index) => (
-            <ListItem key={text} disablePadding>
+        <ListItem disablePadding onClick={()=>{navigate("/mis-rutas")}}>
               <ListItemButton>
                 <ListItemIcon>
-                  {index % 2 === 0 ? <AddCircleOutlineIcon /> : <LocationOnIcon />}
+                <LocationOnIcon />
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemText primary={"Mis Rutas"} />
               </ListItemButton>
-            </ListItem>
-          ))}
+        </ListItem>
+        <ListItem disablePadding onClick={()=>{navigate("/add-ruta")}}>
+              <ListItemButton>
+                <ListItemIcon>
+                <AddCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText primary={"Nueva ruta"} />
+              </ListItemButton>
+        </ListItem>
         </List>
         <Divider />
         <List>
-            <ListItem disablePadding>
+            <ListItem disablePadding onClick={handleLogout} >
               <ListItemButton>
                 <ListItemIcon>
                  <LogoutIcon />

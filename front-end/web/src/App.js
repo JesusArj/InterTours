@@ -1,23 +1,30 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
-import Dashboard from "./Dashboard";
-import Homepage from "./Homepage";
+import AddRoute from "./AddRoute";
 import Login from "./Login";
 import PrivateRoute from "./PrivateRoute";
+import MyRoutes from "./MyRoutes";
 
 function App() {
   return (
     <Routes>
       <Route
-        path="/dashboard"
+        path="/mis-rutas"
         element={
           <PrivateRoute>
-            <Dashboard />
+            <MyRoutes />
           </PrivateRoute>
         }
       />
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Homepage />} />
+      <Route
+        path="/add-ruta"
+        element={
+          <PrivateRoute>
+            <AddRoute />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }
