@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { styled } from "@mui/material/styles";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
+import { loadScript } from "load-script";
 import {
   TextField,
   Button,
@@ -14,54 +12,56 @@ import {
   Card,
 } from "@material-ui/core";
 import PersistentDrawerLeft from "../Sidebar";
-import Box from "@mui/material/Box";
 import { CardContent, Typography } from "@mui/material";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
+import { styled } from "@mui/material/styles";
+import MuiAccordion from "@mui/material/Accordion";
+import MuiAccordionSummary from "@mui/material/AccordionSummary";
+import {StopComponent} from "./StopComponent";
+
+
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const AddRoute = () => {
-  const Accordion = styled((props) => (
-    <MuiAccordion disableGutters elevation={0} square {...props} />
-  ))(({ theme }) => ({
-    border: `1px solid ${theme.palette.divider}`,
-    "&:not(:last-child)": {
-      borderBottom: 0,
-    },
-    "&:before": {
-      display: "none",
-    },
-  }));
-
-  const AccordionSummary = styled((props) => (
-    <MuiAccordionSummary
-      expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    backgroundColor: "rgba(0, 0, 0, .02)",
-    flexDirection: "row-reverse",
-    "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-      transform: "rotate(90deg)",
-    },
-    "& .MuiAccordionSummary-content": {
-      marginLeft: theme.spacing(1),
-    },
-  }));
-
-  const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-    padding: theme.spacing(2),
-    borderTop: "1px solid rgba(0, 0, 0, .125)",
-  }));
-
-  const [expanded, setExpanded] = React.useState("panel1");
-
-  const handleChange = (panel) => (event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
-  };
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [countParada, setCountParada] = useState(1);
+  
+
+  const Accordion = styled((props) => (
+      <MuiAccordion disableGutters elevation={0} square {...props} />
+    ))(({ theme }) => ({
+      border: `1px solid ${theme.palette.divider}`,
+      "&:not(:last-child)": {
+        borderBottom: 0,
+      },
+      "&:before": {
+        display: "none",
+      },
+    }));
+  
+    const AccordionSummary = styled((props) => (
+      <MuiAccordionSummary
+        expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
+        {...props}
+      />
+    ))(({ theme }) => ({
+      backgroundColor: "rgba(0, 0, 0, .02)",
+      flexDirection: "row-reverse",
+      "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
+        transform: "rotate(90deg)",
+      },
+      "& .MuiAccordionSummary-content": {
+        marginLeft: theme.spacing(1),
+      },
+    }));
+  
+    const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+      padding: theme.spacing(2),
+      borderTop: "1px solid rgba(0, 0, 0, .125)",
+    }));
+
 
   return (
     <>
@@ -99,48 +99,11 @@ const AddRoute = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
-                  <Accordion
-                    expanded={expanded === "panel1"}
-                    onChange={handleChange("panel1")}>
-                    <AccordionSummary
-                      aria-controls="panel1d-content"
-                      id="panel1d-header">
-                      <Typography>Parada 1</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid item xs={12}>
-                        <TextField
-                          helperText="Ejemplo: Mezquita Catedral de Córdoba"
-                          id="nombreParada"
-                          label="Nombre"
-                          fullWidth
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          helperText="Descripción de la parada"
-                          id="descripcionParada"
-                          label="Descripción"
-                          multiline
-                          minRows={2}
-                          fullWidth
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Button variant="outlined" component="label" sx={{ mt: 5 /* margin top */ }}>
-                          Añadir Audio
-                          <input type="file" hidden accept=".mp3"/>
-                        </Button>
-                      </Grid>
-                    </AccordionDetails>
-                  </Accordion>
-                </Grid>
-
+                {Array.from({ length: countParada }).map((_, index) => (
+                <StopComponent key = {index} countParada={index+1} />
+                ))}
                 <Grid item xs={12} align="center">
-                  <Button>
+                  <Button onClick= {() => setCountParada(countParada + 1)}>
                   <AddCircleIcon fontSize="large"/>
                   </Button>
 
@@ -149,8 +112,7 @@ const AddRoute = () => {
                 <Grid item xs={12} align="center">
                   <Button
                     variant="contained"
-                    color="primary"
-                    textAlign="center">
+                    color="primary">
                     {" "}
                     Crear Ruta{" "}
                   </Button>
