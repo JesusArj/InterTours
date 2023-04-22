@@ -30,6 +30,12 @@ public class CoordenadasEntity implements Serializable {
 	@Column(name = "audio", nullable = true)
 	private String audio;
 
+	@Column(name = "descripcion", nullable = false)
+	private String descripcionParada;
+
+	@Column(name = "nombre", nullable = false)
+	private String nombreParada;
+
 	public String getAudio() {
 		return audio;
 	}
@@ -68,6 +74,22 @@ public class CoordenadasEntity implements Serializable {
 
 	public void setLongitud(double longitud) {
 		this.longitud = longitud;
+	}
+
+	public String getDescripcionParada() {
+		return descripcionParada;
+	}
+
+	public void setDescripcionParada(String descripcionParada) {
+		this.descripcionParada = descripcionParada;
+	}
+
+	public String getNombreParada() {
+		return nombreParada;
+	}
+
+	public void setNombreParada(String nombreParada) {
+		this.nombreParada = nombreParada;
 	}
 
 }

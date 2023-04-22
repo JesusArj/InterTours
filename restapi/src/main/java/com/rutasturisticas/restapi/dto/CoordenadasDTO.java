@@ -14,6 +14,10 @@ public class CoordenadasDTO implements Serializable {
 
 	private double longitud;
 
+	private String nombreParada;
+
+	private String descripcionParada;
+
 	private String audio;
 
 	public int getOrden() {
@@ -60,6 +64,22 @@ public class CoordenadasDTO implements Serializable {
 
 	public void setIdRuta(int idRuta) {
 		this.idRuta = idRuta;
+	}
+
+	public String getNombreParada() {
+		return nombreParada;
+	}
+
+	public void setNombreParada(String nombreParada) {
+		this.nombreParada = nombreParada;
+	}
+
+	public String getDescripcionParada() {
+		return descripcionParada;
+	}
+
+	public void setDescripcionParada(String descripcionParada) {
+		this.descripcionParada = descripcionParada;
 	}
 
 }

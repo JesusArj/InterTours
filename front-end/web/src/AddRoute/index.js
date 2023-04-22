@@ -10,28 +10,27 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import jwt_decode from "jwt-decode";
+import { useLocalState } from "../util/useLocalStorage";
+import { useNavigate } from "react-router-dom";
 
 const AddRoute = () => {
   const [routeName, setRouteName] = useState("");
   const [routeDescription, setRouteDescription] = useState("");
+  const [routeLocality, setRouteLocality] = useState("");
+  const [routeProvince, setRouteProvince] = useState("");
   const [stops, setStops] = useState([{}]);
   const [showError1, setShowError1] = useState(false);
   const [showError2, setShowError2] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showDefaultError, setShowDefaultError] = useState(false);
+  const [showBadRequest, setShowBadRequest] = useState(false);
   const [index, setIndex] = useState(0);
-
-  const setNameInArray = (value, arrayIndex) => {
-    stops[arrayIndex].name = value;
-    console.log(stops);
-  };
-
-  const clearNameInArray = (arrayIndex) => {
-    stops[arrayIndex].name = "";
-    console.log(stops);
-  };
+  const [jwt, setJwt] = useLocalState("", "jwt");
+  const navigate = useNavigate();
 
   const setDescriptionInArray = (value, arrayIndex) => {
-    stops[arrayIndex].description = value;
-    console.log(stops);
+    stops[arrayIndex].descripcionParada = value;
   };
 
   const inputRef = useRef();
@@ -45,25 +44,27 @@ const AddRoute = () => {
       if (!isSpain(place)) {
         setShowError2(true);
       } else {
-        handleLatLong(place, index);
-        setNameInArray(place.name, index);
-        console.log(stops);
+        setPlaceInArray(place, index);
       }
     }
   };
 
-  const setLatLongInArray = (valueLat, valueLong, index) => {
-    stops[index].lat = valueLat;
-    stops[index].long = valueLong;
+  const setPlaceInArray = (place, index) => {
+    stops[index].latitud = place.geometry.location.lat();
+    stops[index].longitud = place.geometry.location.lng();
+    stops[index].nombreParada = place.name;
+    stops[index].orden = index + 1;
+    if (index === 0) {
+      place.address_components.forEach((element) => {
+        if (element.types[0] === "locality") {
+          setRouteLocality(element.long_name);
+        }
+        if (element.types[0] === "administrative_area_level_2") {
+          setRouteProvince(element.long_name);
+        }
+      });
+    }
   };
-
-  function handleLatLong(place, index) {
-    setLatLongInArray(
-      place.geometry.location.lat(),
-      place.geometry.location.lng(),
-      index
-    );
-  }
 
   function isSpain(place) {
     let isSpain = false;
@@ -76,7 +77,10 @@ const AddRoute = () => {
   }
 
   const addEmptyStop = () => {
-    if (stops[stops.length - 1].name && stops[stops.length - 1].description) {
+    if (
+      stops[stops.length - 1].nombreParada &&
+      stops[stops.length - 1].descripcionParada
+    ) {
       const stopsCopy = stops.slice();
       stopsCopy.push({});
       setStops(stopsCopy);
@@ -85,9 +89,52 @@ const AddRoute = () => {
     }
   };
 
+  function sendCreateRuteRequest() {
+    const data = {
+      titulo: routeName,
+      descripcion: routeDescription,
+      autor: jwt_decode(jwt).sub,
+      municipio: routeLocality,
+      provincia: routeProvince,
+      coordenadas: stops,
+    };
+    console.log(data);
+    console.log(jwt_decode(jwt));
+    fetch("api/rutas/insertarRuta/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }).then((response) => {
+      if (response.status === 200) {
+        navigate("/mis-rutas", {
+          state: { shouldShowAlert: true },
+        })
+      } else if (response.status === 400) {
+        setShowBadRequest(true);
+      } else {
+        setShowDefaultError(true);
+      }
+    });
+  }
+
   return (
     <PersistentDrawerLeft>
       <Card style={{ maxWidth: 450, margin: "0 auto" }}>
+        {showSuccess && (
+          <>
+            <Collapse in={showSuccess}>
+              <Alert
+                severity="success"
+                onClose={() => {
+                  setShowSuccess(false);
+                }}>
+                Ruta añadida con éxito
+              </Alert>
+            </Collapse>
+          </>
+        )}
         <CardContent>
           <form>
             <Typography fontSize={25} textAlign="center">
@@ -177,37 +224,38 @@ const AddRoute = () => {
                 </>
               ))}
 
-{showError1 && (
-              <>
-                <br></br>
-                <Collapse in={showError1}>
-                  <Alert
-                    severity="error"
-                    onClose={() => {
-                      setShowError1(false);
-                    }}>
-                    Completa la parada anterior antes de añadir una nueva.
-                  </Alert>
-                </Collapse>
-              </>
-            )}
-            {showError2 && (
-              <>
-                <br></br>
-                <Collapse in={showError2}>
-                  <Alert
-                    severity="error"
-                    onClose={() => {
-                      setShowError2(false);
-                    }}
-                    sx={{
-                      textAlign: "center",
-                    }}>
-                    El lugar seleccionado no está dentro del territorio Español.
-                  </Alert>
-                </Collapse>
-              </>
-            )}
+              {showError1 && (
+                <>
+                  <br></br>
+                  <Collapse in={showError1}>
+                    <Alert
+                      severity="error"
+                      onClose={() => {
+                        setShowError1(false);
+                      }}>
+                      Completa la parada anterior antes de añadir una nueva.
+                    </Alert>
+                  </Collapse>
+                </>
+              )}
+              {showError2 && (
+                <>
+                  <br></br>
+                  <Collapse in={showError2}>
+                    <Alert
+                      severity="error"
+                      onClose={() => {
+                        setShowError2(false);
+                      }}
+                      sx={{
+                        textAlign: "center",
+                      }}>
+                      El lugar seleccionado no está dentro del territorio
+                      Español.
+                    </Alert>
+                  </Collapse>
+                </>
+              )}
               <Grid item xs={12} align="center">
                 <Button
                   onClick={() => {
@@ -218,13 +266,50 @@ const AddRoute = () => {
               </Grid>
 
               <Grid item xs={12} align="center">
-                <Button variant="contained" color="primary">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    sendCreateRuteRequest();
+                  }}>
                   {" "}
                   Crear Ruta{" "}
                 </Button>
               </Grid>
             </Grid>
           </form>
+          {showBadRequest && (
+            <>
+              <br></br>
+              <Collapse in={showBadRequest}>
+                <Alert
+                  severity="error"
+                  onClose={() => {
+                    setShowBadRequest(false);
+                  }}>
+                  Por favor, revisa los datos de la ruta. Recuerda que solo se
+                  aceptan lugares dentro del territorio Español y que no puedes
+                  dejar ningún campo vacío.
+                </Alert>
+              </Collapse>
+            </>
+          )}
+
+          {showDefaultError && (
+            <>
+              <br></br>
+              <Collapse in={showDefaultError}>
+                <Alert
+                  severity="error"
+                  onClose={() => {
+                    setShowDefaultError(false);
+                  }}>
+                  Ha ocurrido un error conectando con el sistema. Si el error
+                  persiste, contacte con el administrador.
+                </Alert>
+              </Collapse>
+            </>
+          )}
         </CardContent>
       </Card>
     </PersistentDrawerLeft>
