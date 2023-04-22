@@ -8,6 +8,7 @@ import MyRoutes from "./MyRoutes";
 function App() {
   return (
     <Routes>
+      <Route path="/login" element={<Login />} />
       <Route
         path="/mis-rutas"
         element={
@@ -16,7 +17,6 @@ function App() {
           </PrivateRoute>
         }
       />
-      <Route path="/login" element={<Login />} />
       <Route
         path="/add-ruta"
         element={

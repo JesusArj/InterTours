@@ -6,6 +6,7 @@ import FormLabel from "@mui/joy/FormLabel";
 import Input from '@mui/joy/Input';
 import { Sheet } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -42,7 +43,7 @@ const Login = () => {
       .then((data) => {
         if (data) {
           setJwt(data);
-          window.location.href = "/dashboard";
+          window.location.href = "/mis-rutas";
         }
       });
   }

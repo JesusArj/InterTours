@@ -137,7 +137,7 @@ export default function PersistentDrawerLeft({ children }) {
                 <ListItemText primary={"Mis Rutas"} />
               </ListItemButton>
         </ListItem>
-        <ListItem disablePadding onClick={()=>{navigate("/add-ruta")}}>
+        <ListItem disablePadding onClick={() => window.location.href='/add-ruta'}>
               <ListItemButton>
                 <ListItemIcon>
                 <AddCircleOutlineIcon />
