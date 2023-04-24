@@ -1,6 +1,7 @@
 package com.rutasturisticas.restapi.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -37,6 +38,16 @@ public class RutaService {
 		dto.setCoordenadas(coordenadasDTO);
 		return dto;
 	}
+
+	public List<RutaDTO> getRutasByAutor(String autor) {
+		ArrayList<RutaEntity> rutas = (ArrayList<RutaEntity>) rutaRepository.findAllByAutor(autor);
+		List<RutaDTO> rutasDTO = mapList(rutas, RutaDTO.class);
+		rutasDTO.forEach(entity -> {
+			entity.setCoordenadas(
+					mapList(coordenadasRepository.findByIdRuta(entity.getIdRuta()), CoordenadasDTO.class));
+		});
+		return rutasDTO;
+	};
 
 	public void insertRuta(RutaDTO rutaDTO) {
 		RutaEntity rutaEntity = modelMapper.map(rutaDTO, RutaEntity.class);

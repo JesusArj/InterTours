@@ -1,5 +1,7 @@
 package com.rutasturisticas.restapi.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,12 @@ public class RutaController {
 	public ResponseEntity<RutaDTO> getRutaById(@PathVariable("id") int id) {
 		RutaDTO rutaEntity = rutaService.getRutaById(id);
 		return new ResponseEntity<RutaDTO>(rutaEntity, HttpStatus.OK);
+	}
+
+	@GetMapping("/{autor}")
+	public ResponseEntity<List<RutaDTO>> getRutasByAutor(@PathVariable("autor") String autor) {
+		List<RutaDTO> rutaEntity = rutaService.getRutasByAutor(autor);
+		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
 	}
 
 	@PostMapping("/insertarRuta/")
