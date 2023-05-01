@@ -4,6 +4,7 @@ import AddRoute from "./AddRoute";
 import Login from "./Login";
 import PrivateRoute from "./PrivateRoute";
 import MyRoutes from "./MyRoutes";
+import Layout from "./Layout";
 
 function App() {
   return (
@@ -13,7 +14,9 @@ function App() {
         path="/mis-rutas"
         element={
           <PrivateRoute>
-            <MyRoutes />
+            <Layout>
+              <MyRoutes />
+            </Layout>
           </PrivateRoute>
         }
       />
@@ -21,7 +24,9 @@ function App() {
         path="/add-ruta"
         element={
           <PrivateRoute>
-            <AddRoute />
+            <Layout>
+              <AddRoute />
+            </Layout>
           </PrivateRoute>
         }
       />

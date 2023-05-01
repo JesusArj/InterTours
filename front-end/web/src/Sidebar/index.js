@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -11,20 +11,25 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { DrawerHeader } from "./DrawerHeader";
-import LogoutIcon from '@mui/icons-material/Logout';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useNavigate } from "react-router-dom";
 import Cookie from "universal-cookie";
-import { useState } from "react";
 
 const drawerWidth = 240;
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+  justifyContent: "flex-end",
+}));
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   ({ theme, open }) => ({
@@ -64,10 +69,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-
-
 export default function PersistentDrawerLeft({ children }) {
-  const theme = useTheme();
   const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
@@ -76,7 +78,7 @@ export default function PersistentDrawerLeft({ children }) {
 
   const handleDrawerClose = () => {
     setOpen(false);
-  }
+  };
 
   const navigate = useNavigate();
 
@@ -84,9 +86,8 @@ export default function PersistentDrawerLeft({ children }) {
     const cookie = new Cookie();
     cookie.remove("jwt");
     localStorage.removeItem("jwt");
-    navigate('/login');
+    navigate("/login");
   }
-
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -120,47 +121,51 @@ export default function PersistentDrawerLeft({ children }) {
         open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
+            <ChevronLeftIcon />
           </IconButton>
         </DrawerHeader>
         <Divider />
         <List>
-        <ListItem disablePadding onClick={()=>{navigate("/mis-rutas")}}>
+          <div>
+            <ListItem
+              disablePadding
+              onClick={() => {
+                navigate("/mis-rutas");
+              }}>
               <ListItemButton>
                 <ListItemIcon>
-                <LocationOnIcon />
+                  <LocationOnIcon />
                 </ListItemIcon>
                 <ListItemText primary={"Mis Rutas"} />
               </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding onClick={() => window.location.href='/add-ruta'}>
+            </ListItem>
+            <ListItem
+              disablePadding
+              onClick={() => {
+                navigate("/add-ruta");
+              }}>
               <ListItemButton>
                 <ListItemIcon>
-                <AddCircleOutlineIcon />
+                  <AddCircleOutlineIcon />
                 </ListItemIcon>
                 <ListItemText primary={"Nueva ruta"} />
               </ListItemButton>
-        </ListItem>
+            </ListItem>
+          </div>
         </List>
         <Divider />
-        <List>
-            <ListItem disablePadding onClick={handleLogout} >
-              <ListItemButton>
-                <ListItemIcon>
-                 <LogoutIcon />
-                </ListItemIcon>
-                <ListItemText primary={"Cerrar Sesión"} />
-              </ListItemButton>
-            </ListItem>
-        </List>
+        <ListItem disablePadding onClick={handleLogout} sx={{ mt: "auto" }}>
+          <ListItemButton>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Cerrar Sesión"} />
+          </ListItemButton>
+        </ListItem>
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-          {children}
+        {children}
       </Main>
     </Box>
   );
