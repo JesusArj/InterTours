@@ -458,7 +458,6 @@ const MyRoutes = () => {
               <TextField
                 id="name"
                 value={
-                  // visibleRows[modalIndex] ? visibleRows[modalIndex].titulo : ""
                   editModalInfo.titulo
                 }
                 label="Nombre"

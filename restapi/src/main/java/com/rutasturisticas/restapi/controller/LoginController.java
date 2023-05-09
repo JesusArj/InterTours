@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rutasturisticas.restapi.data.entity.UsuarioEntity;
 import com.rutasturisticas.restapi.dto.AuthenticationRequest;
+import com.rutasturisticas.restapi.service.UsuariosService;
 import com.rutasturisticas.restapi.util.JwtUtil;
 
 import ch.qos.logback.core.util.Duration;
@@ -38,6 +39,9 @@ public class LoginController {
 	@Value("${cookies.domain}")
 	private String domain;
 
+	@Autowired
+	private UsuariosService usuariosService;
+
 	@PostMapping("login")
 	public ResponseEntity<?> login(@RequestBody AuthenticationRequest request) {
 		try {
@@ -54,6 +58,12 @@ public class LoginController {
 		} catch (BadCredentialsException ex) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+	}
+
+	@PostMapping("/registerGuiaTuristico")
+	public ResponseEntity<?> register(@RequestBody AuthenticationRequest request) {
+		return usuariosService.insertarGuiaTuristico(request) ? ResponseEntity.status(HttpStatus.OK).build()
+				: ResponseEntity.status(HttpStatus.CONFLICT).build();
 	}
 
 	@GetMapping("/validate")

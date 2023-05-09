@@ -7,6 +7,7 @@ import {
   CardContent,
   Typography,
   Collapse,
+  IconButton,
 } from "@mui/material";
 import { StandaloneSearchBox } from "@react-google-maps/api";
 import Alert from "@mui/material/Alert";
@@ -18,6 +19,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import jwt_decode from "jwt-decode";
 import { useLocalState } from "../util/useLocalStorage";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const AddRoute = () => {
   const [routeData, setRouteData] = useState({
@@ -45,9 +47,6 @@ const AddRoute = () => {
   );
 
   const inputRef = useRef();
-  const southWest = new window.google.maps.LatLng(35.8579, -9.3924);
-  const northEast = new window.google.maps.LatLng(43.7183, 4.9971);
-  const bounds = new window.google.maps.LatLngBounds(southWest, northEast);
 
   const handlePlaceChanged = () => {
     const [place] = inputRef.current.getPlaces();
@@ -82,12 +81,6 @@ const AddRoute = () => {
     [stops]
   );
 
-  function isSpain(place) {
-    return place.address_components.some(
-      (element) => element.types[0] === "country" && element.short_name === "ES"
-    );
-  }
-
   const addEmptyStop = () => {
     if (
       stops[stops.length - 1].nombreParada &&
@@ -96,6 +89,17 @@ const AddRoute = () => {
       setStops((prev) => [...prev, {}]);
     } else {
       setAlerts((prev) => ({ ...prev, showError1: true }));
+    }
+  };
+
+  const removeStop = (index) => {
+    console.log(stops); 
+    if (stops.length > 1) {
+      setStops((prev) => {
+        const updatedStops = Array.from(prev);
+        updatedStops.splice(index, 1);
+        return updatedStops;
+      });
     }
   };
 
@@ -179,7 +183,7 @@ const AddRoute = () => {
               </Grid>
 
               {stops.map((element, index) => (
-                <Grid item xs={12} key={index}>
+                <Grid item xs={12} key={element.nombreParada}>
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -191,8 +195,7 @@ const AddRoute = () => {
                       <Grid item xs={12}>
                         <StandaloneSearchBox
                           onLoad={(ref) => (inputRef.current = ref)}
-                          onPlacesChanged={handlePlaceChanged}
-                          bounds={bounds}>
+                          onPlacesChanged={handlePlaceChanged}>
                           <TextField
                             helperText="Ejemplo: Mezquita Catedral de Córdoba"
                             id={"nombreParada" + index}
@@ -227,6 +230,14 @@ const AddRoute = () => {
                           Añadir Audio
                           <input type="file" hidden accept=".mp3" />
                         </Button>
+                        <IconButton
+                        sx={{ mt: 5, ml: 30}}
+                          onClick={() => {
+                            removeStop(index);
+                          }}>
+                          <DeleteIcon 
+                          color="primary"/>
+                        </IconButton>
                       </Grid>
                     </AccordionDetails>
                   </Accordion>

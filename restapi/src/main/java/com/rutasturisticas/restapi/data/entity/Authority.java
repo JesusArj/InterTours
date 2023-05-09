@@ -16,7 +16,7 @@ public class Authority implements GrantedAuthority {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String authority;
-	private String userId;
+	private String usuario;
 
 	public Authority() {
 
@@ -39,12 +39,12 @@ public class Authority implements GrantedAuthority {
 		this.id = id;
 	}
 
-	public String getUserId() {
-		return userId;
+	public String getUsuario() {
+		return usuario;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
 	}
 
 	public void setAuthority(String authority) {
