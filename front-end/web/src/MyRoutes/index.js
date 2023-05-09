@@ -40,12 +40,25 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const MyRoutes = () => {
   const [showDetail, setShowDetail] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const location = useLocation();
   const [jwt, setJwt] = useLocalState("", "jwt");
   const [data, setData] = useState([{}]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [modalIndex, setModalIndex] = useState(0);
+  const [editModalInfo, setEditModalInfo] = useState({
+    titulo: "",
+    descripcion: "",
+  });
+  const [editStops, setEditStops] = useState([{}]);
+  const [alerts, setAlerts] = useState({
+    showAddRouteSuccess: true,
+    showDeleteRouteSuccess: false,
+    showEditModalInfoAlert: true,
+    showEditRouteSuccess: false,
+  });
 
   const handleClickOpenDetailModal = (index) => {
     console.log(data);
@@ -55,8 +68,41 @@ const MyRoutes = () => {
     setShowDetail(true);
   };
 
+  const handleClickOpenDeleteModal = (index) => {
+    setModalIndex(index);
+    setShowDelete(true);
+  };
+
+  const handleClickOpenEditModal = (index) => {
+    setAlerts((prev) => ({ ...prev, showEditModalInfoAlert: true }));
+    setModalIndex(index);
+    editModalInfo.titulo = visibleRows[index] ? visibleRows[index].titulo : "";
+    editModalInfo.descripcion = visibleRows[index]
+      ? visibleRows[index].descripcion
+      : "";
+    setEditStops(
+      visibleRows[index] && visibleRows[index].coordenadas
+        ? visibleRows[index].coordenadas
+        : ""
+    );
+    setShowEdit(true);
+  };
+
   const handleCloseDetailModal = () => {
     setShowDetail(false);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDelete(false);
+  };
+
+  const handleEditRouteChange = (e, fieldName) => {
+    setEditModalInfo((prev) => ({ ...prev, [fieldName]: e.target.value }));
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEdit(false);
+    console.log(editStops);
   };
 
   useEffect(() => {
@@ -101,13 +147,104 @@ const MyRoutes = () => {
     [data, page, rowsPerPage]
   );
 
+  const handleAlertClose = (alertName) => {
+    setAlerts((prev) => ({ ...prev, [alertName]: false }));
+  };
+
+  const setDescriptionInArray = (value, arrayIndex) => {
+    const updatedStops = [...editStops]; // Copia el arreglo original
+    updatedStops[arrayIndex] = {
+      ...updatedStops[arrayIndex], // Copia el objeto original en la posición específica
+      descripcionParada: value, // Actualiza la propiedad descripcionParada
+    };
+    setEditStops(updatedStops); // Actualiza el arreglo completo
+  };
+
+  const handleAcceptDeleteModal = () => {
+    fetch(`api/rutas/eliminarRuta/${visibleRows[modalIndex].idRuta}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        setShowDelete(false);
+        data.forEach((element, index) => {
+          if (element.idRuta === visibleRows[modalIndex].idRuta) {
+            data.splice(index);
+          }
+        });
+        visibleRows.splice(modalIndex);
+        handleChangePage(null, 0);
+        console.log(visibleRows);
+        setAlerts((prev) => ({ ...prev, showDeleteRouteSuccess: true }));
+        return response.text();
+      }
+    });
+  };
+
+  const handleAcceptEditModal = () => {
+    const ReqData = {
+      titulo: editModalInfo.titulo,
+      descripcion: editModalInfo.descripcion,
+      coordenadas: editStops,
+    };
+
+    fetch(`api/rutas/editarRuta/${visibleRows[modalIndex].idRuta}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(ReqData),
+    }).then((response) => {
+      if (response.status === 200) {
+        setShowEdit(false);
+        handleChangePage(null, 0);
+        setAlerts((prev) => ({ ...prev, showEditRouteSuccess: true }));
+        return response.json();
+      }
+    }).then((dataResponse) => {
+      console.log(dataResponse);
+      data.forEach((element, index) => {
+        if (element.idRuta === visibleRows[modalIndex].idRuta) {
+          data[index] = dataResponse;
+        }
+      });
+          visibleRows[modalIndex] = dataResponse;
+    });
+  };
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
-
   return (
     <>
-      {location.state && location.state.shouldShowAlert && (
-        <Alert severity="success">Ruta creada con éxito</Alert>
+      {location.state &&
+        location.state.shouldShowAlert &&
+        alerts.showAddRouteSuccess && (
+          <Alert
+            severity="success"
+            onClose={() => {
+              handleAlertClose("showAddRouteSuccess");
+            }}>
+            Ruta creada con éxito
+          </Alert>
+        )}
+      {alerts.showDeleteRouteSuccess && (
+        <Alert
+          severity="success"
+          onClose={() => {
+            handleAlertClose("showDeleteRouteSuccess");
+          }}>
+          Ruta eliminada correctamente
+        </Alert>
+      )}
+      {alerts.showEditRouteSuccess && (
+        <Alert
+          severity="success"
+          onClose={() => {
+            handleAlertClose("showEditRouteSuccess");
+          }}>
+          Ruta editada correctamente
+        </Alert>
       )}
       <h1 style={{ textAlign: "center", color: "#3276D2" }}>MIS RUTAS</h1>
       <Card style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -133,10 +270,12 @@ const MyRoutes = () => {
                         onClick={() => handleClickOpenDetailModal(index)}>
                         <VisibilityIcon fontSize="small" color="action" />
                       </IconButton>
-                      <IconButton>
+                      <IconButton
+                        onClick={() => handleClickOpenEditModal(index)}>
                         <EditIcon fontSize="small" color="action" />
                       </IconButton>
-                      <IconButton>
+                      <IconButton
+                        onClick={() => handleClickOpenDeleteModal(index)}>
                         <DeleteIcon fontSize="small" color="action" />
                       </IconButton>
                     </TableCell>
@@ -153,18 +292,41 @@ const MyRoutes = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Elementos por página"
+          />
         </CardContent>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={data.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="Elementos por página"
-        />
       </Card>
+
+      {/* MODALES */}
+      <Dialog
+        onClose={handleCloseDeleteModal}
+        open={showDelete}
+        maxWidth="md"
+        fullWidth>
+        <DialogTitle>Eliminar ruta</DialogTitle>
+        <br />
+        <DialogContent>
+          <DialogContentText>
+            ¿Está seguro de que desea eliminar la ruta?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAcceptDeleteModal} color="primary" autoFocus>
+            Eliminar
+          </Button>
+          <Button onClick={handleCloseDeleteModal} color="primary">
+            Cancelar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         onClose={handleCloseDetailModal}
@@ -178,7 +340,9 @@ const MyRoutes = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 id="name"
-                value={data[modalIndex].titulo}
+                value={
+                  visibleRows[modalIndex] ? visibleRows[modalIndex].titulo : ""
+                }
                 label="Nombre"
                 disabled
                 fullWidth
@@ -188,7 +352,11 @@ const MyRoutes = () => {
               <TextField
                 disabled
                 id="descripcion"
-                value={data[modalIndex].descripcion}
+                value={
+                  visibleRows[modalIndex]
+                    ? visibleRows[modalIndex].descripcion
+                    : ""
+                }
                 label="Descripción"
                 fullWidth
               />
@@ -197,7 +365,11 @@ const MyRoutes = () => {
               <TextField
                 disabled
                 id="municipio"
-                value={data[modalIndex].municipio}
+                value={
+                  visibleRows[modalIndex]
+                    ? visibleRows[modalIndex].municipio
+                    : ""
+                }
                 label="Municipio"
                 fullWidth
               />
@@ -206,20 +378,27 @@ const MyRoutes = () => {
               <TextField
                 disabled
                 id="provincia"
-                value={data[modalIndex].provincia}
+                value={
+                  visibleRows[modalIndex]
+                    ? visibleRows[modalIndex].provincia
+                    : ""
+                }
                 label="provincia"
                 fullWidth
               />
             </Grid>
-            {data[modalIndex].coordenadas &&
-              data[modalIndex].coordenadas.map((element, index) => (
+            {visibleRows[modalIndex] &&
+              visibleRows[modalIndex].coordenadas &&
+              visibleRows[modalIndex].coordenadas.map((element, index) => (
                 <Grid item xs={12} key={index}>
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
                       aria-controls={"panel" + index + "d-content"}
                       id={"panel" + index + "d-header"}>
-                      <Typography>{index + 1 + "- \t" + element.nombreParada}  </Typography>
+                      <Typography>
+                        {index + 1 + "- \t" + element.nombreParada}{" "}
+                      </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       <Grid container spacing={2}>
@@ -252,6 +431,132 @@ const MyRoutes = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDetailModal}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        onClose={handleCloseEditModal}
+        open={showEdit}
+        maxWidth="xl"
+        fullWidth>
+        <DialogTitle>Editar ruta</DialogTitle>
+        {alerts.showEditModalInfoAlert && (
+          <Alert
+            severity="info"
+            onClose={() => {
+              handleAlertClose("showEditModalInfoAlert");
+            }}>
+            {" "}
+            Recuerda que solo algunos campos son editables. Si necesitas nuevas
+            paradas, por favor, genera una nueva ruta.{" "}
+          </Alert>
+        )}
+        <br />
+        <DialogContent>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="name"
+                value={
+                  // visibleRows[modalIndex] ? visibleRows[modalIndex].titulo : ""
+                  editModalInfo.titulo
+                }
+                label="Nombre"
+                onChange={(e) => {
+                  handleEditRouteChange(e, "titulo");
+                }}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="descripcion"
+                value={editModalInfo.descripcion}
+                onChange={(e) => {
+                  handleEditRouteChange(e, "descripcion");
+                }}
+                label="Descripción"
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="municipio"
+                value={
+                  visibleRows[modalIndex]
+                    ? visibleRows[modalIndex].municipio
+                    : ""
+                }
+                label="Municipio"
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="provincia"
+                value={
+                  visibleRows[modalIndex]
+                    ? visibleRows[modalIndex].provincia
+                    : ""
+                }
+                label="provincia"
+                fullWidth
+                disabled
+              />
+            </Grid>
+            {visibleRows[modalIndex] &&
+              visibleRows[modalIndex].coordenadas &&
+              visibleRows[modalIndex].coordenadas.map((element, index) => (
+                <Grid item xs={12} key={index}>
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls={"panel" + index + "d-content"}
+                      id={"panel" + index + "d-header"}>
+                      <Typography>
+                        {index + 1 + "- \t" + element.nombreParada}{" "}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <TextField
+                            id={"nombreParada" + index}
+                            label="Nombre"
+                            fullWidth
+                            value={element.nombreParada}
+                            disabled
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id={"descripcionParada" + index}
+                            label="Descripción"
+                            value={
+                              editStops[index] &&
+                              editStops[index].descripcionParada
+                                ? editStops[index].descripcionParada
+                                : ""
+                            }
+                            onChange={(e) => {
+                              setDescriptionInArray(e.target.value, index);
+                            }}
+                            multiline
+                            minRows={2}
+                            fullWidth
+                          />
+                        </Grid>
+                      </Grid>
+                    </AccordionDetails>
+                  </Accordion>
+                </Grid>
+              ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAcceptEditModal}>Editar</Button>
+          <Button onClick={handleCloseEditModal}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </>

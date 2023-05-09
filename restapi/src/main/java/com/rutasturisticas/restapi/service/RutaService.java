@@ -57,6 +57,10 @@ public class RutaService {
 		insertarCoordenadas(rutaDTO);
 	}
 
+	public void deleteRutaById(int idRuta) {
+		rutaRepository.deleteById(idRuta);
+	}
+
 	private void insertarCoordenadas(RutaDTO rutaDTO) {
 		ArrayList<CoordenadasEntity> coordenadasEntity = mapList(rutaDTO.getCoordenadas(), CoordenadasEntity.class);
 		coordenadasRepository.saveAll(coordenadasEntity);

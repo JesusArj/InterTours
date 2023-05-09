@@ -12,11 +12,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [jwt, setJwt] = useLocalState("", "jwt");
-
-  if (jwt) {
-    window.location.href = "/mis-rutas";
-  }
-
+  
   function sendLoginRequest() {
     const requestBody = {
       username: username,
@@ -36,7 +32,7 @@ const Login = () => {
           alert("Usuario o contraseña incorrectos");
         } else {
           alert(
-            "Ha ocurrido un error, si el eroor persiste contacte con el administrador"
+            "Ha ocurrido un error, si el error persiste contacte con el administrador"
           );
         }
       })

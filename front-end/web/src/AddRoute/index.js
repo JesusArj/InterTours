@@ -20,7 +20,6 @@ import { useLocalState } from "../util/useLocalStorage";
 import { useNavigate } from "react-router-dom";
 
 const AddRoute = () => {
-  // useState variables are grouped for better readability
   const [routeData, setRouteData] = useState({
     routeName: "",
     routeDescription: "",
@@ -30,7 +29,6 @@ const AddRoute = () => {
   const [stops, setStops] = useState([{}]);
   const [alerts, setAlerts] = useState({
     showError1: false,
-    showError2: false,
     showSuccess: false,
     showDefaultError: false,
     showBadRequest: false,
@@ -39,7 +37,6 @@ const AddRoute = () => {
   const [jwt, setJwt] = useLocalState("", "jwt");
   const navigate = useNavigate();
 
-  // Using useCallback to prevent unnecessary re-renders
   const setDescriptionInArray = useCallback(
     (value, arrayIndex) => {
       stops[arrayIndex].descripcionParada = value;
@@ -55,11 +52,7 @@ const AddRoute = () => {
   const handlePlaceChanged = () => {
     const [place] = inputRef.current.getPlaces();
     if (place) {
-      if (!isSpain(place)) {
-        setAlerts((prev) => ({ ...prev, showError2: true }));
-      } else {
         setPlaceInArray(place, index);
-      }
     }
   };
 
@@ -135,7 +128,6 @@ const AddRoute = () => {
     });
   }
 
-  // Updated input handlers
   const handleInputChange = (e, fieldName) => {
     setRouteData((prev) => ({ ...prev, [fieldName]: e.target.value }));
   };
@@ -145,6 +137,7 @@ const AddRoute = () => {
   };
   return (
     <>
+      <h1 style={{ textAlign: "center", color: "#3276D2" }}>AÑADIR RUTA</h1>
       <Card style={{ maxWidth: 500, margin: "0 auto" }}>
         {alerts.showSuccess && (
           <Collapse in={alerts.showSuccess}>
@@ -159,9 +152,6 @@ const AddRoute = () => {
         )}
         <CardContent>
           <form>
-            <h1 style={{ textAlign: "center", color: "#3276D2" }}>
-              AÑADIR RUTA
-            </h1>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -243,31 +233,17 @@ const AddRoute = () => {
                 </Grid>
               ))}
               <Grid item xs={12} align="center">
-              {alerts.showError1 && (
-                <Collapse in={alerts.showError1}>
-                  <Alert
-                    severity="error"
-                    onClose={() => {
-                      handleAlertClose("showError1");
-                    }}>
-                    Completa la parada anterior antes de añadir una nueva.
-                  </Alert>
-                </Collapse>
-              )}
-              {alerts.showError2 && (
-                <Collapse in={alerts.showError2}>
-                  <Alert
-                    severity="error"
-                    onClose={() => {
-                      handleAlertClose("showError2");
-                    }}
-                    sx={{
-                      textAlign: "center",
-                    }}>
-                    El lugar seleccionado no está dentro del territorio Español.
-                  </Alert>
-                </Collapse>
-              )}
+                {alerts.showError1 && (
+                  <Collapse in={alerts.showError1}>
+                    <Alert
+                      severity="error"
+                      onClose={() => {
+                        handleAlertClose("showError1");
+                      }}>
+                      Completa la parada anterior antes de añadir una nueva.
+                    </Alert>
+                  </Collapse>
+                )}
               </Grid>
               <Grid item xs={12} align="center">
                 <Button
@@ -278,31 +254,30 @@ const AddRoute = () => {
                 </Button>
               </Grid>
               {alerts.showBadRequest && (
-                  <Collapse in={alerts.showBadRequest}>
-                    <Alert
-                      severity="error"
-                      onClose={() => {
-                        handleAlertClose("showBadRequest");
-                      }}>
-                      Por favor, revisa los datos de la ruta. Recuerda que solo
-                      se aceptan lugares dentro del territorio Español y que no
-                      puedes dejar ningún campo vacío.
-                    </Alert>
-                  </Collapse>
-                )}
+                <Collapse in={alerts.showBadRequest}>
+                  <Alert
+                    severity="error"
+                    onClose={() => {
+                      handleAlertClose("showBadRequest");
+                    }}>
+                    Por favor, revisa los datos de la ruta. Recuerda que no
+                    puedes dejar ningún campo vacío.
+                  </Alert>
+                </Collapse>
+              )}
 
-                {alerts.showDefaultError && (
-                  <Collapse in={alerts.showDefaultError}>
-                    <Alert
-                      severity="error"
-                      onClose={() => {
-                        handleAlertClose("showDefaultError");
-                      }}>
-                      Ha ocurrido un error conectando con el sistema. Si el
-                      error persiste, contacte con el administrador.
-                    </Alert>
-                  </Collapse>
-                )}
+              {alerts.showDefaultError && (
+                <Collapse in={alerts.showDefaultError}>
+                  <Alert
+                    severity="error"
+                    onClose={() => {
+                      handleAlertClose("showDefaultError");
+                    }}>
+                    Ha ocurrido un error conectando con el sistema. Si el error
+                    persiste, contacte con el administrador.
+                  </Alert>
+                </Collapse>
+              )}
 
               <Grid item xs={12} align="center">
                 <Button
