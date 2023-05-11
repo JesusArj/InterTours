@@ -19,7 +19,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import jwt_decode from "jwt-decode";
 import { useLocalState } from "../util/useLocalStorage";
 import { useNavigate } from "react-router-dom";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
+import SouthIcon from "@mui/icons-material/South";
+import NorthIcon from "@mui/icons-material/North";
 
 const AddRoute = () => {
   const [routeData, setRouteData] = useState({
@@ -51,7 +53,7 @@ const AddRoute = () => {
   const handlePlaceChanged = () => {
     const [place] = inputRef.current.getPlaces();
     if (place) {
-        setPlaceInArray(place, index);
+      setPlaceInArray(place, index);
     }
   };
 
@@ -93,11 +95,37 @@ const AddRoute = () => {
   };
 
   const removeStop = (index) => {
-    console.log(stops); 
     if (stops.length > 1) {
       setStops((prev) => {
         const updatedStops = Array.from(prev);
         updatedStops.splice(index, 1);
+        console.log(updatedStops);
+        return updatedStops;
+      });
+    }
+  };
+
+  const moveStopUp = (index) => {
+    if (index > 0) {
+      setStops((prev) => {
+        const updatedStops = Array.from(prev);
+        const temp = updatedStops[index - 1];
+        updatedStops[index - 1] = updatedStops[index];
+        updatedStops[index] = temp;
+        console.log(updatedStops);
+        return updatedStops;
+      });
+    }
+  };
+
+  const moveStopDown = (index) => {
+    if (index < stops.length - 1) {
+      setStops((prev) => {
+        const updatedStops = Array.from(prev);
+        const temp = updatedStops[index + 1];
+        updatedStops[index + 1] = updatedStops[index];
+        updatedStops[index] = temp;
+        console.log(updatedStops);
         return updatedStops;
       });
     }
@@ -183,7 +211,7 @@ const AddRoute = () => {
               </Grid>
 
               {stops.map((element, index) => (
-                <Grid item xs={12} key={element.nombreParada}>
+                <Grid item xs={12} key={index}>
                   <Accordion>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
@@ -222,22 +250,40 @@ const AddRoute = () => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={12}>
-                        <Button
-                          variant="outlined"
-                          component="label"
-                          sx={{ mt: 5 }}>
-                          Añadir Audio
-                          <input type="file" hidden accept=".mp3" />
-                        </Button>
-                        <IconButton
-                        sx={{ mt: 5, ml: 30}}
-                          onClick={() => {
-                            removeStop(index);
-                          }}>
-                          <DeleteIcon 
-                          color="primary"/>
-                        </IconButton>
+                      <Grid container>
+                        <Grid item xs={6}>
+                          <Button
+                            variant="outlined"
+                            component="label"
+                            sx={{ mt: 5 }}>
+                            Añadir Audio
+                            <input type="file" hidden accept=".mp3" />
+                          </Button>
+                        </Grid>
+                        <Grid item xs={6} container justifyContent="flex-end"  sx={{ mt: 5 }}>
+                        <Grid item>
+                            <IconButton onClick={() => {
+                              moveStopUp(index);
+                            }}>
+                              <NorthIcon color="primary" />
+                            </IconButton>
+                          </Grid>
+                          <Grid item>
+                            <IconButton onClick={() => {
+                              moveStopDown(index);
+                            }}>
+                              <SouthIcon color="primary" />
+                            </IconButton>
+                          </Grid>
+                          <Grid item>
+                            <IconButton
+                              onClick={() => {
+                                removeStop(index);
+                              }}>
+                              <DeleteIcon color="primary" />
+                            </IconButton>
+                          </Grid>
+                        </Grid>
                       </Grid>
                     </AccordionDetails>
                   </Accordion>
