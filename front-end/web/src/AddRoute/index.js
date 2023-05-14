@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -40,48 +40,63 @@ const AddRoute = () => {
   const [index, setIndex] = useState(0);
   const [jwt, setJwt] = useLocalState("", "jwt");
   const navigate = useNavigate();
+  const itemsRef = useRef([]);
 
-  const setDescriptionInArray = useCallback(
-    (value, arrayIndex) => {
-      stops[arrayIndex].descripcionParada = value;
-    },
-    [stops]
-  );
-
-  const inputRef = useRef();
+  useEffect(() => {
+    itemsRef.current = itemsRef.current.slice(0, stops.length);
+  }, [stops]);
 
   const handlePlaceChanged = () => {
-    const [place] = inputRef.current.getPlaces();
+    const [place] = itemsRef.current[index].getPlaces() || [];
     if (place) {
+      console.log(place);
       setPlaceInArray(place, index);
     }
   };
 
-  const setPlaceInArray = useCallback(
-    (place, index) => {
-      stops[index].latitud = place.geometry.location.lat();
-      stops[index].longitud = place.geometry.location.lng();
-      stops[index].nombreParada = place.name;
-      stops[index].orden = index + 1;
-      if (index === 0) {
-        place.address_components.forEach((element) => {
-          if (element.types[0] === "locality") {
-            setRouteData((prev) => ({
-              ...prev,
-              routeLocality: element.long_name,
-            }));
-          }
-          if (element.types[0] === "administrative_area_level_2") {
-            setRouteData((prev) => ({
-              ...prev,
-              routeProvince: element.long_name,
-            }));
-          }
-        });
-      }
-    },
-    [stops]
-  );
+  const setDescriptionInArray = (value, arrayIndex) => {
+    setStops((prev) => {
+      const updatedStops = Array.from(prev);
+      updatedStops[arrayIndex].descripcionParada = value;
+      return updatedStops;
+    });
+  };
+
+  const setNameInArray = (value) => {
+    setStops((prev) => {
+      const updatedStops = Array.from(prev);
+      updatedStops[index].nombreParada = value;
+      return updatedStops;
+    });
+  };
+
+  const setPlaceInArray = (place, index) => {
+    setStops((prev) => {
+      const updatedStops = Array.from(prev);
+      updatedStops[index].latitud = place.geometry.location.lat();
+      updatedStops[index].longitud = place.geometry.location.lng();
+      updatedStops[index].nombreParada = place.name;
+      updatedStops[index].orden = index + 1;
+      return updatedStops;
+    });
+
+    if (index === 0) {
+      place.address_components.forEach((element) => {
+        if (element.types[0] === "locality") {
+          setRouteData((prev) => ({
+            ...prev,
+            routeLocality: element.long_name,
+          }));
+        }
+        if (element.types[0] === "administrative_area_level_2") {
+          setRouteData((prev) => ({
+            ...prev,
+            routeProvince: element.long_name,
+          }));
+        }
+      });
+    }
+  };
 
   const addEmptyStop = () => {
     if (
@@ -222,15 +237,19 @@ const AddRoute = () => {
                     <AccordionDetails>
                       <Grid item xs={12}>
                         <StandaloneSearchBox
-                          onLoad={(ref) => (inputRef.current = ref)}
+                          onLoad={(ref) => (itemsRef.current[index] = ref)}
                           onPlacesChanged={handlePlaceChanged}>
                           <TextField
                             helperText="Ejemplo: Mezquita Catedral de Córdoba"
                             id={"nombreParada" + index}
                             label="Nombre"
+                            value={stops[index].nombreParada}
                             fullWidth
                             required
-                            onChange={() => {
+                            onChange={(e) => {
+                              setNameInArray(e.target.value);
+                            }}
+                            onClick={() => {
                               setIndex(index);
                             }}
                           />
@@ -245,8 +264,12 @@ const AddRoute = () => {
                           minRows={2}
                           fullWidth
                           required
-                          onChange={(e) => {
+                          value={stops[index].descripcionParada}
+                          onChange={(e) => { 
                             setDescriptionInArray(e.target.value, index);
+                          }}
+                          onClick={() => {
+                            setIndex(index);
                           }}
                         />
                       </Grid>
@@ -260,21 +283,31 @@ const AddRoute = () => {
                             <input type="file" hidden accept=".mp3" />
                           </Button>
                         </Grid>
-                        <Grid item xs={6} container justifyContent="flex-end"  sx={{ mt: 5 }}>
-                        <Grid item>
-                            <IconButton onClick={() => {
-                              moveStopUp(index);
-                            }}>
-                              <NorthIcon color="primary" />
-                            </IconButton>
-                          </Grid>
+                        <Grid
+                          item
+                          xs={6}
+                          container
+                          justifyContent="flex-end"
+                          sx={{ mt: 5 }}>
+                          {index > 0 && (
+                            <Grid item>
+                              <IconButton
+                                onClick={() => {
+                                  moveStopUp(index);
+                                }}>
+                                <NorthIcon color="primary" />
+                              </IconButton>
+                            </Grid>
+                          )}
                           <Grid item>
-                            <IconButton onClick={() => {
-                              moveStopDown(index);
-                            }}>
+                            <IconButton
+                              onClick={() => {
+                                moveStopDown(index);
+                              }}>
                               <SouthIcon color="primary" />
                             </IconButton>
                           </Grid>
+
                           <Grid item>
                             <IconButton
                               onClick={() => {
