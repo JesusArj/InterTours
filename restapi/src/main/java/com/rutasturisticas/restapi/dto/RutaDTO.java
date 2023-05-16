@@ -20,6 +20,18 @@ public class RutaDTO implements Serializable {
 
 	private ArrayList<CoordenadasDTO> coord = new ArrayList<>();
 
+	public RutaDTO() {
+	}
+
+	public RutaDTO(String autor, String titulo, String descripcion, String municipio, String provincia) {
+		super();
+		this.autor = autor;
+		this.titulo = titulo;
+		this.descripcion = descripcion;
+		this.municipio = municipio;
+		this.provincia = provincia;
+	}
+
 	public int getIdRuta() {
 		return idRuta;
 	}

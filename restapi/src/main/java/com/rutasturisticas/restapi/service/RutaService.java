@@ -1,14 +1,21 @@
 package com.rutasturisticas.restapi.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.rutasturisticas.restapi.data.entity.CoordenadasEntity;
 import com.rutasturisticas.restapi.data.entity.RutaEntity;
@@ -49,15 +56,42 @@ public class RutaService {
 		return rutasDTO;
 	};
 
-	public void insertRuta(RutaDTO rutaDTO) {
+	public void insertRuta(RutaDTO rutaDTO, List<MultipartFile> audios) {
 		RutaEntity rutaEntity = modelMapper.map(rutaDTO, RutaEntity.class);
 		int idRuta = rutaRepository.save(rutaEntity).getIdRuta();
 		rutaDTO.setIdRuta(idRuta);
-		rutaDTO.getCoordenadas().forEach(c -> c.setIdRuta(rutaDTO.getIdRuta()));
+		rutaDTO.getCoordenadas().forEach(c -> {
+			c.setIdRuta(rutaDTO.getIdRuta());
+		});
+		audios.forEach(withCounter((i, file) -> {
+			try {
+				if (file != null) {
+					file.transferTo(new File("/home/yisusarj/EspaturAPI/restapi/src/main/resources/static/audios/"
+							+ rutaDTO.getIdRuta() + "/" + i));
+					rutaDTO.getCoordenadas().get(i)
+							.setAudio("/home/yisusarj/EspaturAPI/restapi/src/main/resources/static/audios/"
+									+ rutaDTO.getIdRuta() + "/" + i);
+				}
+			} catch (IllegalStateException | IOException e) {
+				e.printStackTrace();
+			}
+		}));
+
 		insertarCoordenadas(rutaDTO);
 	}
 
+	private static <T> Consumer<T> withCounter(BiConsumer<Integer, T> consumer) {
+		AtomicInteger counter = new AtomicInteger(0);
+		return item -> consumer.accept(counter.getAndIncrement(), item);
+	}
+
 	public void deleteRutaById(int idRuta) {
+		File file = new File("/home/yisusarj/EspaturAPI/restapi/src/main/resources/static/audios/" + idRuta);
+		try {
+			FileUtils.deleteDirectory(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		rutaRepository.deleteById(idRuta);
 	}
 

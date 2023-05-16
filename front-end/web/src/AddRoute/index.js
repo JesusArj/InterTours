@@ -39,6 +39,7 @@ const AddRoute = () => {
   });
   const [index, setIndex] = useState(0);
   const [jwt, setJwt] = useLocalState("", "jwt");
+  const [files, setFiles] = useState([]);
   const navigate = useNavigate();
   const itemsRef = useRef([]);
 
@@ -98,12 +99,22 @@ const AddRoute = () => {
     }
   };
 
+  const handleFileChange = (file, index) => {
+    setFiles((prev) => {
+      const updatedFiles = [...prev];
+      updatedFiles[index] = file;
+      console.log(updatedFiles);
+      return updatedFiles;
+    });
+  };
+
   const addEmptyStop = () => {
     if (
       stops[stops.length - 1].nombreParada &&
       stops[stops.length - 1].descripcionParada
     ) {
       setStops((prev) => [...prev, {}]);
+      setFiles((prev) => [...prev, null]); // Agregar una entrada vacía al array de archivos
     } else {
       setAlerts((prev) => ({ ...prev, showError1: true }));
     }
@@ -116,6 +127,12 @@ const AddRoute = () => {
         updatedStops.splice(index, 1);
         console.log(updatedStops);
         return updatedStops;
+      });
+      setFiles((prev) => {
+        const updatedFiles = [...prev];
+        updatedFiles.splice(index, 1);
+        console.log(updatedFiles);
+        return updatedFiles;
       });
     }
   };
@@ -130,6 +147,14 @@ const AddRoute = () => {
         console.log(updatedStops);
         return updatedStops;
       });
+      setFiles((prev) => {
+        const updatedFiles = [...prev];
+        const temp = updatedFiles[index - 1];
+        updatedFiles[index - 1] = updatedFiles[index];
+        updatedFiles[index] = temp;
+        console.log(updatedFiles);
+        return updatedFiles;
+      });
     }
   };
 
@@ -143,25 +168,32 @@ const AddRoute = () => {
         console.log(updatedStops);
         return updatedStops;
       });
+      setFiles((prev) => {
+        const updatedFiles = [...prev];
+        const temp = updatedFiles[index + 1];
+        updatedFiles[index + 1] = updatedFiles[index];
+        updatedFiles[index] = temp;
+        console.log(updatedFiles);
+        return updatedFiles;
+      });
     }
   };
 
   function sendCreateRouteRequest() {
-    const data = {
-      titulo: routeData.routeName,
-      descripcion: routeData.routeDescription,
-      autor: jwt_decode(jwt).sub,
-      municipio: routeData.routeLocality,
-      provincia: routeData.routeProvince,
-      coordenadas: stops,
-    };
+    const formData = new FormData();
+    formData.append('titulo', routeData.routeName);
+    formData.append('descripcion', routeData.routeDescription);
+    formData.append('autor', jwt_decode(jwt).sub);
+    formData.append('municipio', routeData.routeLocality);
+    formData.append('provincia', routeData.routeProvince);
+    formData.append('coordenadas', JSON.stringify(stops));
 
+    files.forEach((file, index) => {
+        file ? formData.append('audios', file, `audio_${index}`): formData.append('audios', null);
+    });
     fetch("api/rutas/insertarRuta/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      body: formData,
     }).then((response) => {
       if (response.status === 200) {
         navigate("/mis-rutas", {
@@ -280,8 +312,15 @@ const AddRoute = () => {
                             component="label"
                             sx={{ mt: 5 }}>
                             Añadir Audio
-                            <input type="file" hidden accept=".mp3" />
+                            <input type="file" hidden accept=".mp3, .wav" 
+                            onChange={(e) => {
+                              handleFileChange(e.target.files[0], index);
+                            }}
+                            />
                           </Button>
+                          <Typography variant="caption">
+                            {files[index] ? files[index].name : ""}
+                          </Typography>
                         </Grid>
                         <Grid
                           item

@@ -1,5 +1,6 @@
 package com.rutasturisticas.restapi.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rutasturisticas.restapi.dto.CoordenadasDTO;
 import com.rutasturisticas.restapi.dto.EditRutaRequest;
 import com.rutasturisticas.restapi.dto.RutaDTO;
 import com.rutasturisticas.restapi.service.RutaService;
@@ -43,14 +50,30 @@ public class RutaController {
 	}
 
 	@PostMapping("/insertarRuta/")
-	public ResponseEntity<String> insertRuta(@RequestBody RutaDTO rutaDTO, @CookieValue(name = "jwt") String token) {
+	public ResponseEntity<String> insertRuta(MultipartHttpServletRequest request,
+			@CookieValue(name = "jwt") String token) {
 		String response = null;
+		List<MultipartFile> audios = request.getFiles("audios");
+
+		RutaDTO rutaDTO = new RutaDTO(request.getParameter("autor"), request.getParameter("titulo"),
+				request.getParameter("descripcion"), request.getParameter("municipio"),
+				request.getParameter("provincia"));
+		String coordenadasDTOJson = request.getParameter("coordenadas");
+		try {
+			ArrayList<CoordenadasDTO> coordenadas = new ObjectMapper().readValue(coordenadasDTOJson,
+					new TypeReference<ArrayList<CoordenadasDTO>>() {
+					});
+			rutaDTO.setCoordenadas(coordenadas);
+		} catch (JsonProcessingException e1) {
+			return new ResponseEntity<String>("Error al procesar las coordenadas", HttpStatus.BAD_REQUEST);
+		}
+
 		if (!rutaDTO.getAutor().equals(jwtUtil.getUsernameFromToken(token))) {
 			response = "USUARIO NO AUTORIZADO";
 			return new ResponseEntity<String>(response, HttpStatus.UNAUTHORIZED);
 		}
 		try {
-			rutaService.insertRuta(rutaDTO);
+			rutaService.insertRuta(rutaDTO, audios);
 			response = "Ruta insertada correctamente";
 		} catch (Exception e) {
 			response = "Error al insertar ruta --> " + e;
@@ -89,7 +112,7 @@ public class RutaController {
 			updateRuta.setTitulo(request.getTitulo());
 			updateRuta.setDescripcion(request.getDescripcion());
 			updateRuta.setCoordenadas(request.getCoordenadas());
-			rutaService.insertRuta(updateRuta);
+			// rutaService.insertRuta(updateRuta);
 		} catch (Exception e) {
 			return new ResponseEntity<RutaDTO>(updateRuta, HttpStatus.BAD_REQUEST);
 		}
