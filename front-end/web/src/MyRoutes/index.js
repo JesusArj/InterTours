@@ -37,6 +37,8 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useNavigate } from "react-router-dom";
+
 
 const MyRoutes = () => {
   const [showDetail, setShowDetail] = useState(false);
@@ -59,6 +61,7 @@ const MyRoutes = () => {
     showEditModalInfoAlert: true,
     showEditRouteSuccess: false,
   });
+  const navigate = useNavigate();
 
   const handleClickOpenDetailModal = (index) => {
     console.log(data);
@@ -85,6 +88,9 @@ const MyRoutes = () => {
         ? visibleRows[index].coordenadas
         : ""
     );
+    navigate("/add-ruta", {
+      state: { isEdit: true, routeEdit: visibleRows[index] },
+    });
     setShowEdit(true);
   };
 
@@ -152,12 +158,12 @@ const MyRoutes = () => {
   };
 
   const setDescriptionInArray = (value, arrayIndex) => {
-    const updatedStops = [...editStops]; // Copia el arreglo original
+    const updatedStops = [...editStops]; 
     updatedStops[arrayIndex] = {
-      ...updatedStops[arrayIndex], // Copia el objeto original en la posición específica
-      descripcionParada: value, // Actualiza la propiedad descripcionParada
+      ...updatedStops[arrayIndex], 
+      descripcionParada: value,
     };
-    setEditStops(updatedStops); // Actualiza el arreglo completo
+    setEditStops(updatedStops);
   };
 
   const handleAcceptDeleteModal = () => {

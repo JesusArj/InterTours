@@ -22,14 +22,17 @@ import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SouthIcon from "@mui/icons-material/South";
 import NorthIcon from "@mui/icons-material/North";
+import { useLocation } from "react-router-dom";
 
 const AddRoute = () => {
+  const location = useLocation();
   const [routeData, setRouteData] = useState({
     routeName: "",
     routeDescription: "",
     routeLocality: "",
     routeProvince: "",
   });
+ 
   const [stops, setStops] = useState([{}]);
   const [alerts, setAlerts] = useState({
     showError1: false,
@@ -181,30 +184,55 @@ const AddRoute = () => {
 
   function sendCreateRouteRequest() {
     const formData = new FormData();
-    formData.append('titulo', routeData.routeName);
-    formData.append('descripcion', routeData.routeDescription);
-    formData.append('autor', jwt_decode(jwt).sub);
-    formData.append('municipio', routeData.routeLocality);
-    formData.append('provincia', routeData.routeProvince);
-    formData.append('coordenadas', JSON.stringify(stops));
-
-    files.forEach((file, index) => {
-        file ? formData.append('audios', file, `audio_${index}`): formData.append('audios', null);
-    });
-    fetch("api/rutas/insertarRuta/", {
-      method: "POST",
-      body: formData,
-    }).then((response) => {
-      if (response.status === 200) {
-        navigate("/mis-rutas", {
-          state: { shouldShowAlert: true },
-        });
-      } else if (response.status === 400) {
-        setAlerts((prev) => ({ ...prev, showBadRequest: true }));
-      } else {
-        setAlerts((prev) => ({ ...prev, showDefaultError: true }));
+    if(location.state && location.state.isEdit){
+      const ReqData = {
+        titulo: routeData.routeName,
+        descripcion: routeData.routeDescription,
+        municipio: routeData.routeLocality,
+        provincia: routeData.routeProvince,
+        idRuta : location.state.routeEdit.idRuta,
+        coordenadas: stops,
       }
-    });
+      fetch(`api/rutas/editarRuta/${location.state.routeEdit.idRuta}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ReqData),
+      }).then((response) => {
+        if (response.status === 200) {
+          navigate("/mis-rutas", {
+            state: { shouldShowAlert: true },
+          });
+        }
+      })
+    }
+    else
+    {
+      formData.append('titulo', routeData.routeName);
+      formData.append('descripcion', routeData.routeDescription);
+      formData.append('autor', jwt_decode(jwt).sub);
+      formData.append('municipio', routeData.routeLocality);
+      formData.append('provincia', routeData.routeProvince);
+      formData.append('coordenadas', JSON.stringify(stops));
+      files.forEach((file, index) => {
+        file ? formData.append('audios', file, `audio_${index}`): formData.append('audios', null);
+      });
+      fetch("api/rutas/insertarRuta/", {
+        method: "POST",
+        body: formData,
+      }).then((response) => {
+        if (response.status === 200) {
+          navigate("/mis-rutas", {
+            state: { shouldShowAlert: true },
+          });
+        } else if (response.status === 400) {
+          setAlerts((prev) => ({ ...prev, showBadRequest: true }));
+        } else {
+          setAlerts((prev) => ({ ...prev, showDefaultError: true }));
+        }
+      });
+    }
   }
 
   const handleInputChange = (e, fieldName) => {
@@ -214,6 +242,18 @@ const AddRoute = () => {
   const handleAlertClose = (alertName) => {
     setAlerts((prev) => ({ ...prev, [alertName]: false }));
   };
+
+  useEffect(() => {
+    if(location.state &&
+      location.state.isEdit && location.state.routeEdit){
+        setRouteData({
+          routeName: location.state.routeEdit.titulo,
+          routeDescription: location.state.routeEdit.descripcion,
+          routeLocality: location.state.routeEdit.municipio,
+          routeProvince: location.state.routeEdit.provincia,});
+          setStops(location.state.routeEdit.coordenadas);
+      }
+  }, []);
   return (
     <>
       <h1 style={{ textAlign: "center", color: "#3276D2" }}>AÑADIR RUTA</h1>

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rutasturisticas.restapi.dto.CoordenadasDTO;
-import com.rutasturisticas.restapi.dto.EditRutaRequest;
 import com.rutasturisticas.restapi.dto.RutaDTO;
 import com.rutasturisticas.restapi.service.RutaService;
 import com.rutasturisticas.restapi.util.JwtUtil;
@@ -101,18 +100,17 @@ public class RutaController {
 	}
 
 	@PutMapping("/editarRuta/{id}")
-	public ResponseEntity<RutaDTO> editRuta(@PathVariable("id") int id, @RequestBody EditRutaRequest request,
-			@CookieValue(name = "jwt") String token) {
+	public ResponseEntity<RutaDTO> editRuta(@RequestBody RutaDTO request, @CookieValue(name = "jwt") String token) {
 		RutaDTO updateRuta = new RutaDTO();
 		try {
-			updateRuta = rutaService.getRutaById(id);
+			updateRuta = rutaService.getRutaById(request.getIdRuta());
 			if (!updateRuta.getAutor().equals(jwtUtil.getUsernameFromToken(token))) {
 				return new ResponseEntity<RutaDTO>(new RutaDTO(), HttpStatus.UNAUTHORIZED);
 			}
 			updateRuta.setTitulo(request.getTitulo());
 			updateRuta.setDescripcion(request.getDescripcion());
 			updateRuta.setCoordenadas(request.getCoordenadas());
-			// rutaService.insertRuta(updateRuta);
+			rutaService.editRuta(updateRuta);
 		} catch (Exception e) {
 			return new ResponseEntity<RutaDTO>(updateRuta, HttpStatus.BAD_REQUEST);
 		}

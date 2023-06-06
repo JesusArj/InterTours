@@ -14,4 +14,6 @@ public interface CoordenadasRepository extends CrudRepository<CoordenadasEntity,
 	// BUSCA POR IDRUTA
 	ArrayList<CoordenadasEntity> findByIdRuta(int idRuta);
 
+	void deleteByIdRuta(Integer id);
+
 }

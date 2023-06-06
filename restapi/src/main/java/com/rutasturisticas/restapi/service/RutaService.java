@@ -23,6 +23,7 @@ import com.rutasturisticas.restapi.data.repository.CoordenadasRepository;
 import com.rutasturisticas.restapi.data.repository.RutaRepository;
 import com.rutasturisticas.restapi.dto.CoordenadasDTO;
 import com.rutasturisticas.restapi.dto.RutaDTO;
+import com.rutasturisticas.restapi.util.RestApiConstants;
 
 @Service
 @Transactional
@@ -66,17 +67,22 @@ public class RutaService {
 		audios.forEach(withCounter((i, file) -> {
 			try {
 				if (file != null) {
-					file.transferTo(new File("/home/yisusarj/EspaturAPI/restapi/src/main/resources/static/audios/"
-							+ rutaDTO.getIdRuta() + "/" + i));
-					rutaDTO.getCoordenadas().get(i)
-							.setAudio("/home/yisusarj/EspaturAPI/restapi/src/main/resources/static/audios/"
-									+ rutaDTO.getIdRuta() + "/" + i);
+					file.transferTo(new File(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
+							+ (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1)));
+					rutaDTO.getCoordenadas().get(i).setAudio(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta()
+							+ "/" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1));
 				}
 			} catch (IllegalStateException | IOException e) {
 				e.printStackTrace();
 			}
 		}));
+		insertarCoordenadas(rutaDTO);
+	}
 
+	public void editRuta(RutaDTO rutaDTO) {
+		RutaEntity rutaEntity = modelMapper.map(rutaDTO, RutaEntity.class);
+		rutaRepository.save(rutaEntity);
+		coordenadasRepository.deleteByIdRuta(rutaDTO.getIdRuta());
 		insertarCoordenadas(rutaDTO);
 	}
 
@@ -86,9 +92,11 @@ public class RutaService {
 	}
 
 	public void deleteRutaById(int idRuta) {
-		File file = new File("/home/yisusarj/EspaturAPI/restapi/src/main/resources/static/audios/" + idRuta);
+		File file = new File(RestApiConstants.AUDIOS_FOLDER_PATH + idRuta);
 		try {
-			FileUtils.deleteDirectory(file);
+			if (file != null) {
+				FileUtils.deleteDirectory(file);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
