@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,6 +48,13 @@ public class RutaController {
 	public ResponseEntity<List<RutaDTO>> getRutasByAutor(@PathVariable("autor") String autor) {
 		List<RutaDTO> rutaEntity = rutaService.getRutasByAutor(autor);
 		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
+	}
+
+	@GetMapping("/audios/{id}")
+	public ResponseEntity<Resource> getAudiosByRuta(@PathVariable("id") Integer id) {
+		Resource resource = rutaService.getAudiosByRuta(id);
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.header("Content-Disposition", "filename=" + resource.getFilename()).body(resource);
 	}
 
 	@PostMapping("/insertarRuta/")

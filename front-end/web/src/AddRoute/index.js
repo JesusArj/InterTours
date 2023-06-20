@@ -32,7 +32,7 @@ const AddRoute = () => {
     routeLocality: "",
     routeProvince: "",
   });
- 
+
   const [stops, setStops] = useState([{}]);
   const [alerts, setAlerts] = useState({
     showError1: false,
@@ -184,15 +184,15 @@ const AddRoute = () => {
 
   function sendCreateRouteRequest() {
     const formData = new FormData();
-    if(location.state && location.state.isEdit){
+    if (location.state && location.state.isEdit) {
       const ReqData = {
         titulo: routeData.routeName,
         descripcion: routeData.routeDescription,
         municipio: routeData.routeLocality,
         provincia: routeData.routeProvince,
-        idRuta : location.state.routeEdit.idRuta,
+        idRuta: location.state.routeEdit.idRuta,
         coordenadas: stops,
-      }
+      };
       fetch(`api/rutas/editarRuta/${location.state.routeEdit.idRuta}`, {
         method: "PUT",
         headers: {
@@ -205,18 +205,18 @@ const AddRoute = () => {
             state: { shouldShowAlert: true },
           });
         }
-      })
-    }
-    else
-    {
-      formData.append('titulo', routeData.routeName);
-      formData.append('descripcion', routeData.routeDescription);
-      formData.append('autor', jwt_decode(jwt).sub);
-      formData.append('municipio', routeData.routeLocality);
-      formData.append('provincia', routeData.routeProvince);
-      formData.append('coordenadas', JSON.stringify(stops));
+      });
+    } else {
+      formData.append("titulo", routeData.routeName);
+      formData.append("descripcion", routeData.routeDescription);
+      formData.append("autor", jwt_decode(jwt).sub);
+      formData.append("municipio", routeData.routeLocality);
+      formData.append("provincia", routeData.routeProvince);
+      formData.append("coordenadas", JSON.stringify(stops));
       files.forEach((file, index) => {
-        file ? formData.append('audios', file, `audio_${index}`): formData.append('audios', null);
+        file
+          ? formData.append("audios", file, `audio_${index}`)
+          : formData.append("audios", null);
       });
       fetch("api/rutas/insertarRuta/", {
         method: "POST",
@@ -244,15 +244,37 @@ const AddRoute = () => {
   };
 
   useEffect(() => {
-    if(location.state &&
-      location.state.isEdit && location.state.routeEdit){
-        setRouteData({
-          routeName: location.state.routeEdit.titulo,
-          routeDescription: location.state.routeEdit.descripcion,
-          routeLocality: location.state.routeEdit.municipio,
-          routeProvince: location.state.routeEdit.provincia,});
-          setStops(location.state.routeEdit.coordenadas);
-      }
+    if (location.state && location.state.isEdit && location.state.routeEdit) {
+      setRouteData({
+        routeName: location.state.routeEdit.titulo,
+        routeDescription: location.state.routeEdit.descripcion,
+        routeLocality: location.state.routeEdit.municipio,
+        routeProvince: location.state.routeEdit.provincia,
+      });
+      setStops((prev) => {
+        const updatedStops = [...prev];
+        const coordenadas = location.state.routeEdit.coordenadas;
+
+        for (let index = 0; index < coordenadas.length; index++) {
+          const element = coordenadas[index];
+
+          updatedStops[index] = {
+            nombreParada: element.nombreParada,
+            descripcionParada: element.descripcionParada,
+            latitud: element.latitud,
+            longitud: element.longitud,
+            orden: element.orden,
+            audio:
+              element.audio &&
+              parseInt(element.audio.charAt(element.audio.length - 1)) ===
+                parseInt(element.orden)
+                ? element.audio.substring(element.audio.lastIndexOf("/") + 1)
+                : null,
+          };
+        }
+        return updatedStops;
+      });
+    }
   }, []);
   return (
     <>
@@ -337,7 +359,7 @@ const AddRoute = () => {
                           fullWidth
                           required
                           value={stops[index].descripcionParada}
-                          onChange={(e) => { 
+                          onChange={(e) => {
                             setDescriptionInArray(e.target.value, index);
                           }}
                           onClick={() => {
@@ -352,14 +374,20 @@ const AddRoute = () => {
                             component="label"
                             sx={{ mt: 5 }}>
                             Añadir Audio
-                            <input type="file" hidden accept=".mp3, .wav" 
-                            onChange={(e) => {
-                              handleFileChange(e.target.files[0], index);
-                            }}
+                            <input
+                              type="file"
+                              hidden
+                              accept=".mp3, .wav"
+                              onChange={(e) => {
+                                handleFileChange(e.target.files[0], index);
+                              }}
                             />
                           </Button>
+                          <br />
                           <Typography variant="caption">
-                            {files[index] ? files[index].name : ""}
+                            {files[index]
+                              ? files[index].name
+                              : stops[index].audio }
                           </Typography>
                         </Grid>
                         <Grid

@@ -14,6 +14,8 @@ import javax.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +49,17 @@ public class RutaService {
 		return dto;
 	}
 
+	public Resource getAudiosByRuta(Integer id) {
+		RutaDTO ruta = getRutaById(id);
+		List<Resource> audioResources = new ArrayList<>();
+		ruta.getCoordenadas().forEach(stop -> {
+			if (stop.getAudio() != null) {
+				audioResources.add(new FileSystemResource(stop.getAudio()));
+			}
+		});
+		return audioResources.get(1);
+	}
+
 	public List<RutaDTO> getRutasByAutor(String autor) {
 		ArrayList<RutaEntity> rutas = (ArrayList<RutaEntity>) rutaRepository.findAllByAutor(autor);
 		List<RutaDTO> rutasDTO = mapList(rutas, RutaDTO.class);
@@ -68,9 +81,15 @@ public class RutaService {
 			try {
 				if (file != null) {
 					file.transferTo(new File(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
-							+ (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1)));
-					rutaDTO.getCoordenadas().get(i).setAudio(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta()
-							+ "/" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1));
+							+ rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
+									.getNombreParada().substring(0, 7).trim()
+							+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1)));
+					rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
+							.setAudio(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
+									+ rutaDTO.getCoordenadas()
+											.get(Integer.parseInt(file.getOriginalFilename().substring(6)))
+											.getNombreParada().substring(0, 7).trim()
+									+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1));
 				}
 			} catch (IllegalStateException | IOException e) {
 				e.printStackTrace();
