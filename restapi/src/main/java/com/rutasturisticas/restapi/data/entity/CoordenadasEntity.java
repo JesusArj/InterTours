@@ -19,7 +19,7 @@ public class CoordenadasEntity implements Serializable {
 
 	@Column(name = "orden", nullable = false)
 	@Id
-	private int orden;
+	private Integer orden;
 
 	@Column(name = "latitud", nullable = false)
 	private double latitud;
@@ -52,11 +52,11 @@ public class CoordenadasEntity implements Serializable {
 		this.idRuta = idRuta;
 	}
 
-	public int getOrden() {
+	public Integer getOrden() {
 		return orden;
 	}
 
-	public void setOrden(int orden) {
+	public void setOrden(Integer orden) {
 		this.orden = orden;
 	}
 

@@ -2,12 +2,17 @@ package com.rutasturisticas.restapi.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
@@ -80,16 +85,9 @@ public class RutaService {
 		audios.forEach(withCounter((i, file) -> {
 			try {
 				if (file != null) {
-					file.transferTo(new File(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
-							+ rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
-									.getNombreParada().substring(0, 7).trim()
-							+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1)));
+					file.transferTo(new File(buildFilePath(rutaDTO, file)));
 					rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
-							.setAudio(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
-									+ rutaDTO.getCoordenadas()
-											.get(Integer.parseInt(file.getOriginalFilename().substring(6)))
-											.getNombreParada().substring(0, 7).trim()
-									+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1));
+							.setAudio(buildFilePath(rutaDTO, file));
 				}
 			} catch (IllegalStateException | IOException e) {
 				e.printStackTrace();
@@ -98,11 +96,101 @@ public class RutaService {
 		insertarCoordenadas(rutaDTO);
 	}
 
-	public void editRuta(RutaDTO rutaDTO) {
+	public void editRuta(RutaDTO rutaDTO, List<MultipartFile> audios) throws IOException {
 		RutaEntity rutaEntity = modelMapper.map(rutaDTO, RutaEntity.class);
 		rutaRepository.save(rutaEntity);
 		coordenadasRepository.deleteByIdRuta(rutaDTO.getIdRuta());
-		insertarCoordenadas(rutaDTO);
+		int count = 1;
+		for (CoordenadasDTO coord : rutaDTO.getCoordenadas()) {
+			coord.setIdRuta(rutaDTO.getIdRuta());
+			coord.setOrden(count);
+			count++;
+		}
+		Set<String> existingAudios = listFilesUsingFilesList(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta());
+		audios.forEach(withCounter((i, file) -> {
+			try {
+				if (file != null) {
+					if (!existingAudios.isEmpty()) {
+						existingAudios.forEach(audio -> {
+							if (audio.substring(0, 7)
+									.equals(rutaDTO.getCoordenadas().get(i).getAudio().substring(0, 7))) {
+								if (!rutaDTO.getCoordenadas().get(i).getAudio()
+										.endsWith(rutaDTO.getCoordenadas().get(i).getOrden().toString())) {
+									try {
+										FileUtils.forceDelete(FileUtils.getFile(audio));
+									} catch (IllegalStateException | IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						});
+					}
+					file.transferTo(new File(buildFilePath(rutaDTO, file)));
+					rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
+							.setAudio(buildFilePath(rutaDTO, file));
+				}
+			} catch (IllegalStateException | IOException e) {
+				e.printStackTrace();
+			}
+		}));
+		Iterable<CoordenadasEntity> it = insertarCoordenadas(rutaDTO);
+		Set<String> auxAudios = listFilesUsingFilesList(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta());
+
+		for (CoordenadasEntity coord : it) {
+			if (coord.getAudio() == null) {
+				for (String aux : auxAudios) {
+					if (aux.startsWith(
+							coord.getNombreParada().length() > 6 ? coord.getNombreParada().substring(0, 7).trim()
+									: coord.getNombreParada().substring(0, 4))) {
+						try {
+							FileUtils.forceDelete(FileUtils.getFile(aux));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} else {
+				if (!coord.getAudio().substring(coord.getAudio().lastIndexOf("_") + 1)
+						.equals(coord.getOrden().toString())) {
+					Path file = Paths.get(coord.getAudio());
+					Files.move(file, file.resolveSibling(coord.getAudio().replaceAll("_\\d", "_" + coord.getOrden())));
+					coord.setAudio(coord.getAudio().replaceAll("_\\d", "_" + coord.getOrden()));
+				}
+			}
+		}
+
+		// COMPROBAMOS QUE NINGUN AUDIO QUE NO DEBA SE QUEDE EN LA CARPETA
+
+		Set<String> newAudios = listFilesUsingFilesList(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta());
+		String auxBorrar = null;
+		for (CoordenadasEntity coord : it) {
+			for (String aux : newAudios) {
+				if (coord.getAudio() != null && coord.getAudio()
+						.equals(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/" + aux)) {
+					auxBorrar = null;
+					break;
+				}
+				auxBorrar = aux;
+			}
+			if (auxBorrar != null) {
+				Path file = Paths.get(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/" + auxBorrar);
+				Files.delete(file);
+			}
+		}
+	}
+
+	private Set<String> listFilesUsingFilesList(String dir) throws IOException {
+		try (Stream<Path> stream = Files.list(Paths.get(dir))) {
+			return stream.filter(file -> !Files.isDirectory(file)).map(Path::getFileName).map(Path::toString)
+					.collect(Collectors.toSet());
+		}
+	}
+
+	private String buildFilePath(RutaDTO rutaDTO, MultipartFile file) {
+		return RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
+				+ rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
+						.getNombreParada().substring(0, 7).trim()
+				+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1);
 	}
 
 	private static <T> Consumer<T> withCounter(BiConsumer<Integer, T> consumer) {
@@ -122,9 +210,9 @@ public class RutaService {
 		rutaRepository.deleteById(idRuta);
 	}
 
-	private void insertarCoordenadas(RutaDTO rutaDTO) {
+	private Iterable<CoordenadasEntity> insertarCoordenadas(RutaDTO rutaDTO) {
 		ArrayList<CoordenadasEntity> coordenadasEntity = mapList(rutaDTO.getCoordenadas(), CoordenadasEntity.class);
-		coordenadasRepository.saveAll(coordenadasEntity);
+		return coordenadasRepository.saveAll(coordenadasEntity);
 	}
 
 	<S, T> ArrayList<T> mapList(ArrayList<S> source, Class<T> targetClass) {

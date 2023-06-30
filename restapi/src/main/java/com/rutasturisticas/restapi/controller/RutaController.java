@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -108,18 +106,33 @@ public class RutaController {
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
 
-	@PutMapping("/editarRuta/{id}")
-	public ResponseEntity<RutaDTO> editRuta(@RequestBody RutaDTO request, @CookieValue(name = "jwt") String token) {
+	// Post porque MultipartHttpServletRequest solo permite POST
+	@PostMapping("/editarRuta/{id}")
+	public ResponseEntity<?> editRuta(@PathVariable("id") Integer id, MultipartHttpServletRequest request,
+			@CookieValue(name = "jwt") String token) {
 		RutaDTO updateRuta = new RutaDTO();
+		List<MultipartFile> audios = request.getFiles("audios");
 		try {
-			updateRuta = rutaService.getRutaById(request.getIdRuta());
-			if (!updateRuta.getAutor().equals(jwtUtil.getUsernameFromToken(token))) {
+			updateRuta = rutaService.getRutaById(id);
+			if (!updateRuta.getAutor().equals(jwtUtil.getUsernameFromToken(token))
+					|| updateRuta.getIdRuta() != Integer.parseInt(request.getParameter("idRuta"))) {
 				return new ResponseEntity<RutaDTO>(new RutaDTO(), HttpStatus.UNAUTHORIZED);
 			}
-			updateRuta.setTitulo(request.getTitulo());
-			updateRuta.setDescripcion(request.getDescripcion());
-			updateRuta.setCoordenadas(request.getCoordenadas());
-			rutaService.editRuta(updateRuta);
+			updateRuta.setTitulo(request.getParameter("titulo"));
+			updateRuta.setDescripcion(request.getParameter("descripcion"));
+			updateRuta.setMunicipio(request.getParameter("municipio"));
+			updateRuta.setProvincia(request.getParameter("provincia"));
+			updateRuta.getCoordenadas().clear();
+			String coordenadasDTOJson = request.getParameter("coordenadas");
+			try {
+				ArrayList<CoordenadasDTO> coordenadas = new ObjectMapper().readValue(coordenadasDTOJson,
+						new TypeReference<ArrayList<CoordenadasDTO>>() {
+						});
+				updateRuta.setCoordenadas(coordenadas);
+			} catch (JsonProcessingException e1) {
+				return new ResponseEntity<String>("Error al procesar las coordenadas", HttpStatus.BAD_REQUEST);
+			}
+			rutaService.editRuta(updateRuta, audios);
 		} catch (Exception e) {
 			return new ResponseEntity<RutaDTO>(updateRuta, HttpStatus.BAD_REQUEST);
 		}

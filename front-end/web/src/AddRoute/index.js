@@ -185,20 +185,20 @@ const AddRoute = () => {
   function sendCreateRouteRequest() {
     const formData = new FormData();
     if (location.state && location.state.isEdit) {
-      const ReqData = {
-        titulo: routeData.routeName,
-        descripcion: routeData.routeDescription,
-        municipio: routeData.routeLocality,
-        provincia: routeData.routeProvince,
-        idRuta: location.state.routeEdit.idRuta,
-        coordenadas: stops,
-      };
+      formData.append("titulo", routeData.routeName);
+      formData.append("descripcion", routeData.routeDescription);
+      formData.append("municipio", routeData.routeLocality);
+      formData.append("provincia", routeData.routeProvince);
+      formData.append("idRuta", location.state.routeEdit.idRuta);
+      formData.append("coordenadas", JSON.stringify(stops));
+      files.forEach((file, index) => {
+        file
+          ? formData.append("audios", file, `audio_${index}`)
+          : formData.append("audios", null);
+      });
       fetch(`api/rutas/editarRuta/${location.state.routeEdit.idRuta}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(ReqData),
+        method: "POST",
+        body: formData,
       }).then((response) => {
         if (response.status === 200) {
           navigate("/mis-rutas", {
@@ -250,6 +250,7 @@ const AddRoute = () => {
         routeDescription: location.state.routeEdit.descripcion,
         routeLocality: location.state.routeEdit.municipio,
         routeProvince: location.state.routeEdit.provincia,
+        
       });
       setStops((prev) => {
         const updatedStops = [...prev];
@@ -264,11 +265,12 @@ const AddRoute = () => {
             latitud: element.latitud,
             longitud: element.longitud,
             orden: element.orden,
+            idRuta: element.idRuta,
             audio:
               element.audio &&
               parseInt(element.audio.charAt(element.audio.length - 1)) ===
                 parseInt(element.orden)
-                ? element.audio.substring(element.audio.lastIndexOf("/") + 1)
+                ? element.audio
                 : null,
           };
         }
@@ -386,8 +388,8 @@ const AddRoute = () => {
                           <br />
                           <Typography variant="caption">
                             {files[index]
-                              ? files[index].name
-                              : stops[index].audio }
+                              ? files[index].name 
+                              : stops[index].audio ? stops[index].audio.substring(element.audio.lastIndexOf("/") + 1) : null }
                           </Typography>
                         </Grid>
                         <Grid

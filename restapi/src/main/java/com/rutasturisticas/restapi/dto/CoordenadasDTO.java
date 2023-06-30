@@ -8,7 +8,7 @@ public class CoordenadasDTO implements Serializable {
 
 	private int idRuta;
 
-	private int orden;
+	private Integer orden;
 
 	private double latitud;
 
@@ -20,11 +20,11 @@ public class CoordenadasDTO implements Serializable {
 
 	private String audio;
 
-	public int getOrden() {
+	public Integer getOrden() {
 		return orden;
 	}
 
-	public void setOrden(int orden) {
+	public void setOrden(Integer orden) {
 		this.orden = orden;
 	}
 
