@@ -107,32 +107,38 @@ public class RutaService {
 			count++;
 		}
 		Set<String> existingAudios = listFilesUsingFilesList(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta());
-		audios.forEach(withCounter((i, file) -> {
+		int i = 0;
+		for (MultipartFile file : audios) {
 			try {
 				if (file != null) {
 					if (!existingAudios.isEmpty()) {
-						existingAudios.forEach(audio -> {
-							if (audio.substring(0, 7)
-									.equals(rutaDTO.getCoordenadas().get(i).getAudio().substring(0, 7))) {
-								if (!rutaDTO.getCoordenadas().get(i).getAudio()
-										.endsWith(rutaDTO.getCoordenadas().get(i).getOrden().toString())) {
-									try {
-										FileUtils.forceDelete(FileUtils.getFile(audio));
-									} catch (IllegalStateException | IOException e) {
-										e.printStackTrace();
-									}
+						for (String audio : existingAudios) {
+							if (rutaDTO.getCoordenadas().get(i).getNombreParada().length() > 6 && audio
+									.startsWith(rutaDTO.getCoordenadas().get(i).getNombreParada().substring(0, 7))) {
+								try {
+									FileUtils.forceDelete(FileUtils.getFile(audio));
+								} catch (IllegalStateException | IOException e) {
+									e.printStackTrace();
+								}
+							} else if (rutaDTO.getCoordenadas().get(i).getNombreParada().length() <= 6
+									&& audio.startsWith(rutaDTO.getCoordenadas().get(i).getNombreParada())) {
+								try {
+									FileUtils.forceDelete(FileUtils.getFile(audio));
+								} catch (IllegalStateException | IOException e) {
+									e.printStackTrace();
 								}
 							}
-						});
+						}
 					}
 					file.transferTo(new File(buildFilePath(rutaDTO, file)));
 					rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
 							.setAudio(buildFilePath(rutaDTO, file));
+					count++;
 				}
 			} catch (IllegalStateException | IOException e) {
 				e.printStackTrace();
 			}
-		}));
+		}
 		Iterable<CoordenadasEntity> it = insertarCoordenadas(rutaDTO);
 		Set<String> auxAudios = listFilesUsingFilesList(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta());
 
@@ -141,9 +147,11 @@ public class RutaService {
 				for (String aux : auxAudios) {
 					if (aux.startsWith(
 							coord.getNombreParada().length() > 6 ? coord.getNombreParada().substring(0, 7).trim()
-									: coord.getNombreParada().substring(0, 4))) {
+									: coord.getNombreParada())) {
 						try {
-							FileUtils.forceDelete(FileUtils.getFile(aux));
+							Path file = Paths
+									.get(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/" + aux);
+							Files.delete(file);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -170,7 +178,9 @@ public class RutaService {
 					auxBorrar = null;
 					break;
 				}
-				auxBorrar = aux;
+				if (coord.getAudio() != null) {
+					auxBorrar = aux;
+				}
 			}
 			if (auxBorrar != null) {
 				Path file = Paths.get(RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/" + auxBorrar);
@@ -187,10 +197,19 @@ public class RutaService {
 	}
 
 	private String buildFilePath(RutaDTO rutaDTO, MultipartFile file) {
-		return RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
-				+ rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
-						.getNombreParada().substring(0, 7).trim()
-				+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1);
+		if (rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6))).getNombreParada()
+				.length() > 6) {
+			return RestApiConstants.AUDIOS_FOLDER_PATH + rutaDTO.getIdRuta() + "/"
+					+ rutaDTO.getCoordenadas().get(Integer.parseInt(file.getOriginalFilename().substring(6)))
+							.getNombreParada().substring(0, 7).trim()
+					+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1);
+		} else {
+			return RestApiConstants.AUDIOS_FOLDER_PATH
+					+ rutaDTO.getIdRuta() + "/" + rutaDTO.getCoordenadas()
+							.get(Integer.parseInt(file.getOriginalFilename().substring(6))).getNombreParada()
+					+ "_" + (Integer.parseInt(file.getOriginalFilename().substring(6)) + 1);
+		}
+
 	}
 
 	private static <T> Consumer<T> withCounter(BiConsumer<Integer, T> consumer) {

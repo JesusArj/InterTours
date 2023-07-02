@@ -23,6 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SouthIcon from "@mui/icons-material/South";
 import NorthIcon from "@mui/icons-material/North";
 import { useLocation } from "react-router-dom";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const AddRoute = () => {
   const location = useLocation();
@@ -120,6 +121,22 @@ const AddRoute = () => {
       setFiles((prev) => [...prev, null]); // Agregar una entrada vacía al array de archivos
     } else {
       setAlerts((prev) => ({ ...prev, showError1: true }));
+    }
+  };
+
+  const deleteAudio = (index) => {
+    if (files[index]) {
+      setFiles((prev) => {
+        const updatedFiles = [...prev];
+        updatedFiles[index] = null;
+        return updatedFiles;
+      });
+    } else {
+      setStops((prev) => {
+        const updatedStops = Array.from(prev);
+        updatedStops[index].audio = null;
+        return updatedStops;
+      });
     }
   };
 
@@ -250,7 +267,6 @@ const AddRoute = () => {
         routeDescription: location.state.routeEdit.descripcion,
         routeLocality: location.state.routeEdit.municipio,
         routeProvince: location.state.routeEdit.provincia,
-        
       });
       setStops((prev) => {
         const updatedStops = [...prev];
@@ -258,7 +274,6 @@ const AddRoute = () => {
 
         for (let index = 0; index < coordenadas.length; index++) {
           const element = coordenadas[index];
-
           updatedStops[index] = {
             nombreParada: element.nombreParada,
             descripcionParada: element.descripcionParada,
@@ -276,11 +291,23 @@ const AddRoute = () => {
         }
         return updatedStops;
       });
+
+      setFiles(() => {
+        const coordenadas = location.state.routeEdit.coordenadas;
+        const updatedFiles = new Array(coordenadas.length);
+        updatedFiles.fill(null);
+        return updatedFiles;
+      });
     }
   }, []);
   return (
     <>
-      <h1 style={{ textAlign: "center", color: "#3276D2" }}>AÑADIR RUTA</h1>
+      {location.state && location.state.isEdit ? (
+        <h1 style={{ textAlign: "center", color: "#3276D2" }}>EDITAR RUTA</h1>
+      ) : (
+        <h1 style={{ textAlign: "center", color: "#3276D2" }}>AÑADIR RUTA</h1>
+      )}
+
       <Card style={{ maxWidth: 500, margin: "0 auto" }}>
         {alerts.showSuccess && (
           <Collapse in={alerts.showSuccess}>
@@ -388,8 +415,21 @@ const AddRoute = () => {
                           <br />
                           <Typography variant="caption">
                             {files[index]
-                              ? files[index].name 
-                              : stops[index].audio ? stops[index].audio.substring(element.audio.lastIndexOf("/") + 1) : null }
+                              ? files[index].name
+                              : stops[index].audio
+                              ? stops[index].audio.substring(
+                                  element.audio.lastIndexOf("/") + 1
+                                )
+                              : null}
+                            {(files[index] || stops[index].audio) && (
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  deleteAudio(index);
+                                }}>
+                                <ClearIcon color="primary" />
+                              </IconButton>
+                            )}
                           </Typography>
                         </Grid>
                         <Grid
@@ -408,14 +448,16 @@ const AddRoute = () => {
                               </IconButton>
                             </Grid>
                           )}
-                          <Grid item>
-                            <IconButton
-                              onClick={() => {
-                                moveStopDown(index);
-                              }}>
-                              <SouthIcon color="primary" />
-                            </IconButton>
-                          </Grid>
+                          {index < stops.length - 1 && (
+                            <Grid item>
+                              <IconButton
+                                onClick={() => {
+                                  moveStopDown(index);
+                                }}>
+                                <SouthIcon color="primary" />
+                              </IconButton>
+                            </Grid>
+                          )}
 
                           <Grid item>
                             <IconButton
@@ -479,15 +521,27 @@ const AddRoute = () => {
               )}
 
               <Grid item xs={12} align="center">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => {
-                    sendCreateRouteRequest();
-                  }}>
-                  {" "}
-                  Crear Ruta{" "}
-                </Button>
+                {location.state && location.state.isEdit ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      sendCreateRouteRequest();
+                    }}>
+                    {" "}
+                    Editar Ruta{" "}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      sendCreateRouteRequest();
+                    }}>
+                    {" "}
+                    Crear Ruta{" "}
+                  </Button>
+                )}
               </Grid>
             </Grid>
           </form>
