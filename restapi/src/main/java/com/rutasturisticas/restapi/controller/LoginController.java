@@ -66,6 +66,12 @@ public class LoginController {
 				: ResponseEntity.status(HttpStatus.CONFLICT).build();
 	}
 
+	@PostMapping("/registerTurista")
+	public ResponseEntity<?> registerTurista(@RequestBody AuthenticationRequest request) {
+		return usuariosService.insertarTurista(request) ? ResponseEntity.status(HttpStatus.OK).build()
+				: ResponseEntity.status(HttpStatus.CONFLICT).build();
+	}
+
 	@GetMapping("/validate")
 	public ResponseEntity<?> validateToken(@CookieValue(name = "jwt") String token,
 			@AuthenticationPrincipal UsuarioEntity user) {

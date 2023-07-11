@@ -50,4 +50,21 @@ public class UsuariosService {
 		return true;
 	}
 
+	public boolean insertarTurista(AuthenticationRequest request) {
+		if (userRepository.findById(request.getUsername()).orElse(null) != null) {
+			return false;
+		}
+		UsuarioEntity usuario = new UsuarioEntity();
+		usuario.setUsername(request.getUsername());
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(request.getPassword());
+		usuario.setPassword(encodedPassword);
+		userRepository.save(usuario);
+		Authority authority = new Authority();
+		authority.setAuthority("TURISTA");
+		authority.setUsuario(usuario.getUsername());
+		authorityRepository.save(authority);
+		return true;
+	}
+
 }
