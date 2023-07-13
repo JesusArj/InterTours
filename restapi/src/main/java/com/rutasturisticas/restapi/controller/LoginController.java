@@ -11,11 +11,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rutasturisticas.restapi.data.entity.UsuarioEntity;
@@ -56,7 +56,7 @@ public class LoginController {
 					.maxAge(Duration.buildByDays(365).getMilliseconds()).build();
 			return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
 		} catch (BadCredentialsException ex) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).build();
 		}
 	}
 
@@ -73,10 +73,20 @@ public class LoginController {
 	}
 
 	@GetMapping("/validate")
-	public ResponseEntity<?> validateToken(@CookieValue(name = "jwt") String token,
+	public ResponseEntity<?> validateToken(@RequestParam("token") String token,
 			@AuthenticationPrincipal UsuarioEntity user) {
 		try {
 			Boolean isValidToken = jwtUtil.validateToken(token, user);
+			return ResponseEntity.ok(isValidToken);
+		} catch (ExpiredJwtException e) {
+			return ResponseEntity.ok(false);
+		}
+	}
+
+	@GetMapping("/validateToken")
+	public ResponseEntity<?> validateTokenWithoutUser(@RequestParam("token") String token) {
+		try {
+			Boolean isValidToken = jwtUtil.validateTokenWithoutUser(token);
 			return ResponseEntity.ok(isValidToken);
 		} catch (ExpiredJwtException e) {
 			return ResponseEntity.ok(false);
