@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -40,6 +41,13 @@ public class RutaController {
 	public ResponseEntity<RutaDTO> getRutaById(@PathVariable("id") int id) {
 		RutaDTO rutaEntity = rutaService.getRutaById(id);
 		return new ResponseEntity<RutaDTO>(rutaEntity, HttpStatus.OK);
+	}
+
+	@GetMapping("/detalleRuta")
+	public ResponseEntity<List<RutaDTO>> getRutaByProvinciaAndMunicipio(@RequestParam("provincia") String provincia,
+			@RequestParam("municipio") String municipio) {
+		List<RutaDTO> rutaEntity = rutaService.getRutasByProvinciaAndMunicipio(provincia, municipio);
+		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
 	}
 
 	@GetMapping("/{autor}")

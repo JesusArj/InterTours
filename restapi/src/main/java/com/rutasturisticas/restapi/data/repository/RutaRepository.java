@@ -1,5 +1,6 @@
 package com.rutasturisticas.restapi.data.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
@@ -15,4 +16,6 @@ public interface RutaRepository extends CrudRepository<RutaEntity, Integer> {
 
 	// Devuelve rutas por autor
 	List<RutaEntity> findAllByAutor(String autor);
+
+	ArrayList<RutaEntity> findAllByProvinciaAndMunicipio(String provincia, String municipio);
 }

@@ -54,6 +54,21 @@ public class RutaService {
 		return dto;
 	}
 
+	public List<RutaDTO> getRutasByProvinciaAndMunicipio(String provincia, String municipio) {
+		ArrayList<RutaDTO> rutasDTO = mapList(rutaRepository.findAllByProvinciaAndMunicipio(provincia, municipio),
+				RutaDTO.class);
+		ArrayList<CoordenadasEntity> coordenadasEntity = new ArrayList<>();
+		ArrayList<CoordenadasDTO> coordenadasDTO = new ArrayList<>();
+		for (RutaDTO ruta : rutasDTO) {
+			coordenadasEntity.clear();
+			coordenadasEntity = coordenadasRepository.findByIdRuta(ruta.getIdRuta());
+			coordenadasDTO.clear();
+			coordenadasDTO = mapList(coordenadasEntity, CoordenadasDTO.class);
+			ruta.setCoordenadas(coordenadasDTO);
+		}
+		return rutasDTO;
+	}
+
 	public Resource getAudiosByRuta(Integer id) {
 		RutaDTO ruta = getRutaById(id);
 		List<Resource> audioResources = new ArrayList<>();

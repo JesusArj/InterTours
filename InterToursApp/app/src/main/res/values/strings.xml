@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">InterToursApp</string>
-    <string name="txt_view_string">Estatus del alumno</string>
+    <string name="MAPS_AUTOCOMPLETE_API_KEY">AIzaSyBD-G6oLUdzpDbD9mPRepdMhXgny0XP1BU</string>
 </resources>

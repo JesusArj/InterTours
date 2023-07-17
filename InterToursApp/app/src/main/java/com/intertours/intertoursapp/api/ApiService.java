@@ -1,6 +1,9 @@
 package com.intertours.intertoursapp.api;
 
 import com.intertours.intertoursapp.api.request.AuthenticationRequest;
+import com.intertours.intertoursapp.api.response.RouteResponse;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -15,4 +18,7 @@ public interface ApiService {
 
     @GET("auth/validateToken")
     Call<Boolean> validate(@Query("token") String token);
+
+    @GET("rutas/detalleRuta")
+    Call<List<RouteResponse>> findRoute(@Query("provincia") String provincia, @Query("municipio") String municipio, @Header("Cookie") String token);
 }
