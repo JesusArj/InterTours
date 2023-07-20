@@ -4,14 +4,9 @@ import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.EditText;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +29,8 @@ import com.intertours.intertoursapp.api.request.RouteRequest;
 import com.intertours.intertoursapp.api.response.RouteResponse;
 import com.intertours.intertoursapp.utils.AppConstants;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -64,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         bienvenida_txt = (TextView) findViewById(R.id.bienvenida_txt);
         autocomplete = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-        Places.initialize(getApplicationContext(), "AIzaSyBD-G6oLUdzpDbD9mPRepdMhXgny0XP1BU", Locale.forLanguageTag("es"));
+        Places.initialize(getApplicationContext(), AppConstants.AUTOCOMPLETE_API_KEY, Locale.forLanguageTag("es"));
         PlacesClient placesClient = Places.createClient(this);
         String token = getIntent().getStringExtra("jwt");
         JWT jwt = new JWT(token);
@@ -72,7 +69,7 @@ public class HomeActivity extends AppCompatActivity {
         bienvenida_txt.setText("¡Bienvenid@, " + userName + "!");
         autocomplete.setTypeFilter(TypeFilter.CITIES);
         autocomplete.setPlaceFields(Arrays.asList(Place.Field.ADDRESS_COMPONENTS));
-        autocomplete.setHint("¿Dónde estás?");
+        autocomplete.setHint("¿Dónde quieres ir?");
         autocomplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
@@ -90,8 +87,11 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<RouteResponse>> call, Response<List<RouteResponse>> response) {
                         if (response.isSuccessful()) {
-                            List<RouteResponse> rutas = response.body();
-
+                            List<RouteResponse> rutas = response.body() != null ? response.body() : new ArrayList<>();
+                            Intent routeListRedirection = new Intent(HomeActivity.this, RouteListActivity.class);
+                            routeListRedirection.putExtra("routeList", (Serializable) rutas);
+                            routeListRedirection.putExtra("jwt", token);
+                            startActivity(routeListRedirection);
                         }
                     }
 

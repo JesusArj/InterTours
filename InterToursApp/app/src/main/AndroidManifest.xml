@@ -16,6 +16,12 @@
         android:theme="@style/Theme.InterToursApp"
         tools:targetApi="31">
         <activity
+            android:name=".RouteDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RouteListActivity"
+            android:exported="false" />
+        <activity
             android:name=".HomeActivity"
             android:exported="false" />
         <activity

@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="cardBackground">#B4CCE4</color>
+    <color name="list_item_pressed_color">#838383</color>
+    <color name="list_item_default_color">#FFFFFF</color>
+
 </resources>

@@ -1,8 +1,11 @@
 package com.intertours.intertoursapp.api.response;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class RouteResponse {
+public class RouteResponse implements Serializable {
     private int idRuta;
 
     private String autor;

@@ -1,6 +1,8 @@
 package com.intertours.intertoursapp.api.response;
 
-public class CoordenadasDTO {
+import java.io.Serializable;
+
+public class CoordenadasDTO implements Serializable {
     private int idRuta;
 
     private Integer orden;
