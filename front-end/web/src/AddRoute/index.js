@@ -464,7 +464,8 @@ const AddRoute = () => {
                               onClick={() => {
                                 removeStop(index);
                               }}>
-                              <DeleteIcon color="primary" />
+                                {stops.length > 1 && (<DeleteIcon color="primary" />)}
+
                             </IconButton>
                           </Grid>
                         </Grid>

@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         username = (EditText) findViewById(R.id.LOGIN_USERNAME);
         password = (EditText) findViewById(R.id.LOGIN_PASSWORD);
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+     /*   sharedPref.edit().remove("jwt").commit();*/
         Call<Boolean> call = apiService.validate( sharedPref.getString("jwt", ""));
         call.enqueue(new Callback<Boolean>() {
             @Override

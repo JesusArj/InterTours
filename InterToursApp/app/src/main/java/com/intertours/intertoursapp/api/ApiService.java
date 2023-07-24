@@ -1,10 +1,12 @@
 package com.intertours.intertoursapp.api;
 
+import com.intertours.intertoursapp.api.request.AudioRequest;
 import com.intertours.intertoursapp.api.request.AuthenticationRequest;
 import com.intertours.intertoursapp.api.response.RouteResponse;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -21,4 +23,7 @@ public interface ApiService {
 
     @GET("rutas/detalleRuta")
     Call<List<RouteResponse>> findRoute(@Query("provincia") String provincia, @Query("municipio") String municipio, @Header("Cookie") String token);
+
+    @GET("rutas/audio")
+    Call<ResponseBody> getAudio(@Query("idRuta") Integer idRuta, @Query("orden") Integer orden, @Header("Cookie") String token);
 }

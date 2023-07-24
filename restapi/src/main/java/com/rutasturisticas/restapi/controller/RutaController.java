@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,11 +56,16 @@ public class RutaController {
 		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
 	}
 
-	@GetMapping("/audios/{id}")
-	public ResponseEntity<Resource> getAudiosByRuta(@PathVariable("id") Integer id) {
-		Resource resource = rutaService.getAudiosByRuta(id);
-		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-				.header("Content-Disposition", "filename=" + resource.getFilename()).body(resource);
+	@GetMapping("/audio")
+	public ResponseEntity<byte[]> getAudioByRutaAndOrden(@RequestParam("idRuta") Integer id,
+			@RequestParam("orden") Integer orden) {
+		byte[] audioData = rutaService.getAudioBytesByRutaAndOrden(id, orden); // Obtener el audio como byte[]
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+		return audioData != null ? new ResponseEntity<>(audioData, headers, HttpStatus.OK)
+				: ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+
 	}
 
 	@PostMapping("/insertarRuta/")

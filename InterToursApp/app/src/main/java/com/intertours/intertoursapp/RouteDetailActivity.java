@@ -2,6 +2,8 @@ package com.intertours.intertoursapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -10,36 +12,81 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.intertours.intertoursapp.api.response.CoordenadasDTO;
 import com.intertours.intertoursapp.api.response.RouteResponse;
 
 import org.w3c.dom.Text;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RouteDetailActivity extends AppCompatActivity {
 
     private BottomNavigationView nav;
-    private TextView titulo;
+
+    private InformationFragment informacionFragment;
+
+    private RouteMapsFragment routeMapsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
-        nav = (BottomNavigationView) findViewById(R.id.routeNav);
-        titulo = (TextView) findViewById(R.id.routeDetailTitle);
+        informacionFragment = InformationFragment.newInstance("", "", "");
         RouteResponse route = (RouteResponse) getIntent().getSerializableExtra("route");
-        titulo.setText(route.getTitulo());
+        List<CoordenadasDTO> coordenadas = route.getCoordenadas();
+        List<CoordenadasDTO> coordenadasOrdenadas = coordenadas.stream()
+                .sorted((c1, c2) -> Integer.compare(c1.getOrden(), c2.getOrden()))
+                .collect(Collectors.toList());
+
+        String[] nombresParadas = coordenadasOrdenadas.stream()
+                .map(CoordenadasDTO::getNombreParada)
+                .toArray(String[]::new);
+        if (savedInstanceState == null) {
+            InformationFragment informationFragment = InformationFragment.newInstance(route.getTitulo(), route.getDescripcion(), buildStopsDescription(nombresParadas));
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, informationFragment)
+                    .commit();
+        }
+        nav = (BottomNavigationView) findViewById(R.id.routeNav);
         nav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Bundle bundle = new Bundle();
+                bundle.putString("jwt", getIntent().getStringExtra("jwt"));
                 if(item.getItemId() == R.id.info){
-                    Toast.makeText(RouteDetailActivity.this, "INFO", Toast.LENGTH_SHORT).show();
+                    informacionFragment = InformationFragment.newInstance(route.getTitulo(), route.getDescripcion(), buildStopsDescription(nombresParadas));
+                    fragmentTransaction.replace(R.id.fragment_container, informacionFragment);
                 }
                 else if(item.getItemId() == R.id.map){
-                    Toast.makeText(RouteDetailActivity.this, "MAP", Toast.LENGTH_SHORT).show();
+                    routeMapsFragment = new RouteMapsFragment(coordenadas);
+
+                    if (!routeMapsFragment.isAdded()) {
+                        routeMapsFragment.setArguments(bundle);
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, routeMapsFragment)
+                                .commit();
+                    }
                 }
+                fragmentTransaction.commit();
                 return true;
             }
         });
+    }
+
+
+    private String buildStopsDescription(String ... stops){
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<stops.length; i++){
+            if(i != stops.length - 1){
+                sb.append(i+1).append(". ").append(stops[i]).append("\n");
+            }
+            else{
+                sb.append(i+1).append(". ").append(stops[i]);
+            }
+        }
+        return sb.toString();
     }
 }

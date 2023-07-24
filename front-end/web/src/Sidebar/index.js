@@ -103,7 +103,7 @@ export default function PersistentDrawerLeft({ children }) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            EspaTours - Guías turísticos
+            InterTours - Guías turísticos
           </Typography>
         </Toolbar>
       </AppBar>

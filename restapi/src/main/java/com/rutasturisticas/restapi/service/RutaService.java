@@ -19,8 +19,6 @@ import javax.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,15 +67,24 @@ public class RutaService {
 		return rutasDTO;
 	}
 
-	public Resource getAudiosByRuta(Integer id) {
+	public byte[] getAudioBytesByRutaAndOrden(Integer id, Integer orden) {
 		RutaDTO ruta = getRutaById(id);
-		List<Resource> audioResources = new ArrayList<>();
-		ruta.getCoordenadas().forEach(stop -> {
-			if (stop.getAudio() != null) {
-				audioResources.add(new FileSystemResource(stop.getAudio()));
+		for (CoordenadasDTO coord : ruta.getCoordenadas()) {
+			if (coord.getOrden() == orden && coord.getAudio() != null) {
+				return readFileToByteArray(coord.getAudio());
 			}
-		});
-		return audioResources.get(1);
+		}
+		return null;
+	}
+
+	private byte[] readFileToByteArray(String filePath) {
+		try {
+			Path path = Paths.get(filePath);
+			return Files.readAllBytes(path);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public List<RutaDTO> getRutasByAutor(String autor) {
