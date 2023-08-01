@@ -32,18 +32,9 @@ public class RouteDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_detail);
-        informacionFragment = InformationFragment.newInstance("", "", "");
         RouteResponse route = (RouteResponse) getIntent().getSerializableExtra("route");
-        List<CoordenadasDTO> coordenadas = route.getCoordenadas();
-        List<CoordenadasDTO> coordenadasOrdenadas = coordenadas.stream()
-                .sorted((c1, c2) -> Integer.compare(c1.getOrden(), c2.getOrden()))
-                .collect(Collectors.toList());
-
-        String[] nombresParadas = coordenadasOrdenadas.stream()
-                .map(CoordenadasDTO::getNombreParada)
-                .toArray(String[]::new);
         if (savedInstanceState == null) {
-            InformationFragment informationFragment = InformationFragment.newInstance(route.getTitulo(), route.getDescripcion(), buildStopsDescription(nombresParadas));
+            InformationFragment informationFragment = InformationFragment.newInstance(route, getIntent().getStringExtra("jwt"));
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, informationFragment)
                     .commit();
@@ -57,12 +48,11 @@ public class RouteDetailActivity extends AppCompatActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString("jwt", getIntent().getStringExtra("jwt"));
                 if(item.getItemId() == R.id.info){
-                    informacionFragment = InformationFragment.newInstance(route.getTitulo(), route.getDescripcion(), buildStopsDescription(nombresParadas));
+                    informacionFragment = InformationFragment.newInstance(route, getIntent().getStringExtra("jwt"));
                     fragmentTransaction.replace(R.id.fragment_container, informacionFragment);
                 }
                 else if(item.getItemId() == R.id.map){
-                    routeMapsFragment = new RouteMapsFragment(coordenadas);
-
+                    routeMapsFragment = new RouteMapsFragment(route.getCoordenadas());
                     if (!routeMapsFragment.isAdded()) {
                         routeMapsFragment.setArguments(bundle);
                         getSupportFragmentManager().beginTransaction()
@@ -74,19 +64,6 @@ public class RouteDetailActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
 
-
-    private String buildStopsDescription(String ... stops){
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i<stops.length; i++){
-            if(i != stops.length - 1){
-                sb.append(i+1).append(". ").append(stops[i]).append("\n");
-            }
-            else{
-                sb.append(i+1).append(". ").append(stops[i]);
-            }
-        }
-        return sb.toString();
     }
 }

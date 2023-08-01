@@ -32,6 +32,7 @@ const AddRoute = () => {
     routeDescription: "",
     routeLocality: "",
     routeProvince: "",
+    routeCountry: "",
   });
 
   const [stops, setStops] = useState([{}]);
@@ -97,6 +98,12 @@ const AddRoute = () => {
           setRouteData((prev) => ({
             ...prev,
             routeProvince: element.long_name,
+          }));
+        }
+        if (element.types[0] === "country") {
+          setRouteData((prev) => ({
+            ...prev,
+            routeCountry: element.long_name,
           }));
         }
       });
@@ -206,6 +213,7 @@ const AddRoute = () => {
       formData.append("descripcion", routeData.routeDescription);
       formData.append("municipio", routeData.routeLocality);
       formData.append("provincia", routeData.routeProvince);
+      formData.append("pais", routeData.routeCountry);
       formData.append("idRuta", location.state.routeEdit.idRuta);
       formData.append("coordenadas", JSON.stringify(stops));
       files.forEach((file, index) => {
@@ -229,6 +237,7 @@ const AddRoute = () => {
       formData.append("autor", jwt_decode(jwt).sub);
       formData.append("municipio", routeData.routeLocality);
       formData.append("provincia", routeData.routeProvince);
+      formData.append("pais", routeData.routeCountry);
       formData.append("coordenadas", JSON.stringify(stops));
       files.forEach((file, index) => {
         file

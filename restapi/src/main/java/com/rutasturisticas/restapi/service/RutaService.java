@@ -24,10 +24,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.rutasturisticas.restapi.data.entity.CoordenadasEntity;
 import com.rutasturisticas.restapi.data.entity.RutaEntity;
+import com.rutasturisticas.restapi.data.entity.ValoracionEntity;
 import com.rutasturisticas.restapi.data.repository.CoordenadasRepository;
 import com.rutasturisticas.restapi.data.repository.RutaRepository;
+import com.rutasturisticas.restapi.data.repository.ValoracionRepository;
 import com.rutasturisticas.restapi.dto.CoordenadasDTO;
 import com.rutasturisticas.restapi.dto.RutaDTO;
+import com.rutasturisticas.restapi.dto.ValoracionRequest;
 import com.rutasturisticas.restapi.util.RestApiConstants;
 
 @Service
@@ -41,6 +44,9 @@ public class RutaService {
 	private CoordenadasRepository coordenadasRepository;
 
 	@Autowired
+	private ValoracionRepository valoracionRepository;
+
+	@Autowired
 	private ModelMapper modelMapper;
 
 	public RutaDTO getRutaById(int id) {
@@ -52,9 +58,9 @@ public class RutaService {
 		return dto;
 	}
 
-	public List<RutaDTO> getRutasByProvinciaAndMunicipio(String provincia, String municipio) {
-		ArrayList<RutaDTO> rutasDTO = mapList(rutaRepository.findAllByProvinciaAndMunicipio(provincia, municipio),
-				RutaDTO.class);
+	public List<RutaDTO> getRutasByProvinciaAndMunicipio(String provincia, String municipio, String pais) {
+		ArrayList<RutaDTO> rutasDTO = mapList(
+				rutaRepository.findAllByProvinciaAndMunicipioAndPais(provincia, municipio, pais), RutaDTO.class);
 		ArrayList<CoordenadasEntity> coordenadasEntity = new ArrayList<>();
 		ArrayList<CoordenadasDTO> coordenadasDTO = new ArrayList<>();
 		for (RutaDTO ruta : rutasDTO) {
@@ -249,6 +255,31 @@ public class RutaService {
 			e.printStackTrace();
 		}
 		rutaRepository.deleteById(idRuta);
+	}
+
+	public Float getRatingByRouteId(Integer id) {
+		ArrayList<ValoracionEntity> valoraciones = valoracionRepository.findAllByIdRuta(id).orElse(new ArrayList<>());
+
+		float sum = 0;
+
+		for (ValoracionEntity v : valoraciones) {
+			sum = sum + v.getNota();
+		}
+		return !valoraciones.isEmpty() ? sum / valoraciones.size() : -1;
+	}
+
+	public Integer getRatingByUser(String usuario, Integer idRuta) {
+		return valoracionRepository.findByUsuarioAndIdRuta(usuario, idRuta).isPresent()
+				? valoracionRepository.findByUsuarioAndIdRuta(usuario, idRuta).get().getNota()
+				: -1;
+	}
+
+	public ValoracionEntity insertRating(ValoracionRequest request, String username) {
+		ValoracionEntity entity = new ValoracionEntity();
+		entity.setIdRuta(request.getIdRuta());
+		entity.setNota(request.getNota());
+		entity.setUsuario(username);
+		return valoracionRepository.save(entity);
 	}
 
 	private Iterable<CoordenadasEntity> insertarCoordenadas(RutaDTO rutaDTO) {

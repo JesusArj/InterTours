@@ -17,5 +17,5 @@ public interface RutaRepository extends CrudRepository<RutaEntity, Integer> {
 	// Devuelve rutas por autor
 	List<RutaEntity> findAllByAutor(String autor);
 
-	ArrayList<RutaEntity> findAllByProvinciaAndMunicipio(String provincia, String municipio);
+	ArrayList<RutaEntity> findAllByProvinciaAndMunicipioAndPais(String provincia, String municipio, String pais);
 }

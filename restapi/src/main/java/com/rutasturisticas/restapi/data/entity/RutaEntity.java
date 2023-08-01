@@ -33,6 +33,9 @@ public class RutaEntity implements Serializable {
 	@Column(name = "provincia", nullable = false)
 	private String provincia;
 
+	@Column(name = "pais", nullable = false)
+	private String pais;
+
 	public int getIdRuta() {
 		return idRuta;
 	}
@@ -79,6 +82,14 @@ public class RutaEntity implements Serializable {
 
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
+	}
+
+	public String getPais() {
+		return pais;
+	}
+
+	public void setPais(String pais) {
+		this.pais = pais;
 	}
 
 }

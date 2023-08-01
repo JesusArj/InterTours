@@ -16,6 +16,8 @@ public class RutaDTO implements Serializable {
 
 	private String municipio;
 
+	private String pais;
+
 	private String provincia;
 
 	private ArrayList<CoordenadasDTO> coord = new ArrayList<>();
@@ -23,13 +25,14 @@ public class RutaDTO implements Serializable {
 	public RutaDTO() {
 	}
 
-	public RutaDTO(String autor, String titulo, String descripcion, String municipio, String provincia) {
+	public RutaDTO(String autor, String titulo, String descripcion, String municipio, String provincia, String pais) {
 		super();
 		this.autor = autor;
 		this.titulo = titulo;
 		this.descripcion = descripcion;
 		this.municipio = municipio;
 		this.provincia = provincia;
+		this.pais = pais;
 	}
 
 	public int getIdRuta() {
@@ -87,6 +90,14 @@ public class RutaDTO implements Serializable {
 
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
+	}
+
+	public String getPais() {
+		return pais;
+	}
+
+	public void setPais(String pais) {
+		this.pais = pais;
 	}
 
 }

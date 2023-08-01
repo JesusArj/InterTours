@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,8 +23,10 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rutasturisticas.restapi.data.entity.ValoracionEntity;
 import com.rutasturisticas.restapi.dto.CoordenadasDTO;
 import com.rutasturisticas.restapi.dto.RutaDTO;
+import com.rutasturisticas.restapi.dto.ValoracionRequest;
 import com.rutasturisticas.restapi.service.RutaService;
 import com.rutasturisticas.restapi.util.JwtUtil;
 
@@ -45,8 +48,8 @@ public class RutaController {
 
 	@GetMapping("/detalleRuta")
 	public ResponseEntity<List<RutaDTO>> getRutaByProvinciaAndMunicipio(@RequestParam("provincia") String provincia,
-			@RequestParam("municipio") String municipio) {
-		List<RutaDTO> rutaEntity = rutaService.getRutasByProvinciaAndMunicipio(provincia, municipio);
+			@RequestParam("municipio") String municipio, @RequestParam("pais") String pais) {
+		List<RutaDTO> rutaEntity = rutaService.getRutasByProvinciaAndMunicipio(provincia, municipio, pais);
 		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
 	}
 
@@ -68,6 +71,22 @@ public class RutaController {
 
 	}
 
+	@GetMapping("/valoracion/{id}")
+	public ResponseEntity<Float> getRatingByRouteId(@PathVariable("id") Integer id) {
+		return new ResponseEntity<Float>(rutaService.getRatingByRouteId(id), HttpStatus.OK);
+	}
+
+	@GetMapping("/valoracionUser")
+	public ResponseEntity<Integer> getRatingByUser(@RequestParam("id") Integer id,
+			@CookieValue(name = "jwt") String token) {
+		RutaDTO updateRuta = rutaService.getRutaById(id);
+		if (!updateRuta.getAutor().equals(jwtUtil.getUsernameFromToken(token))) {
+			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+		}
+		return new ResponseEntity<Integer>(rutaService.getRatingByUser(jwtUtil.getUsernameFromToken(token), id),
+				HttpStatus.OK);
+	}
+
 	@PostMapping("/insertarRuta/")
 	public ResponseEntity<String> insertRuta(MultipartHttpServletRequest request,
 			@CookieValue(name = "jwt") String token) {
@@ -76,7 +95,7 @@ public class RutaController {
 
 		RutaDTO rutaDTO = new RutaDTO(request.getParameter("autor"), request.getParameter("titulo"),
 				request.getParameter("descripcion"), request.getParameter("municipio"),
-				request.getParameter("provincia"));
+				request.getParameter("provincia"), request.getParameter("pais"));
 		String coordenadasDTOJson = request.getParameter("coordenadas");
 		try {
 			ArrayList<CoordenadasDTO> coordenadas = new ObjectMapper().readValue(coordenadasDTOJson,
@@ -99,6 +118,18 @@ public class RutaController {
 			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/insertarValoracion")
+	public ResponseEntity<ValoracionEntity> insertRating(@RequestBody ValoracionRequest dto,
+			@CookieValue(name = "jwt") String token) {
+		try {
+			ValoracionEntity valoracion = rutaService.insertRating(dto, jwtUtil.getUsernameFromToken(token));
+			return new ResponseEntity<ValoracionEntity>(valoracion, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+		}
+
 	}
 
 	@DeleteMapping("/eliminarRuta/{id}")
@@ -135,6 +166,7 @@ public class RutaController {
 			updateRuta.setDescripcion(request.getParameter("descripcion"));
 			updateRuta.setMunicipio(request.getParameter("municipio"));
 			updateRuta.setProvincia(request.getParameter("provincia"));
+			updateRuta.setPais(request.getParameter("pais"));
 			updateRuta.getCoordenadas().clear();
 			String coordenadasDTOJson = request.getParameter("coordenadas");
 			try {

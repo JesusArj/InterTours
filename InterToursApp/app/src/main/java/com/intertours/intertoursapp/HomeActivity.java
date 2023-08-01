@@ -81,8 +81,11 @@ public class HomeActivity extends AppCompatActivity {
                     else if(addressComponent.getTypes().get(0).equals("administrative_area_level_2")){
                         request.setProvincia(addressComponent.getName());
                     }
+                    else if(addressComponent.getTypes().get(0).equals("country")){
+                        request.setPais(addressComponent.getName());
+                    }
                 }
-                Call<List<RouteResponse>> call = apiService.findRoute(request.getProvincia(), request.getMunicipio(), "jwt=" + token);
+                Call<List<RouteResponse>> call = apiService.findRoute(request.getProvincia(), request.getMunicipio(), request.getPais(), "jwt=" + token);
                 call.enqueue(new Callback<List<RouteResponse>>() {
                     @Override
                     public void onResponse(Call<List<RouteResponse>> call, Response<List<RouteResponse>> response) {

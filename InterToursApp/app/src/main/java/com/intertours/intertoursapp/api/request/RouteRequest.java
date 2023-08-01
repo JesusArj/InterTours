@@ -4,6 +4,16 @@ public class RouteRequest {
     private String provincia;
     private String municipio;
 
+    public String getPais() {
+        return pais;
+    }
+
+    public void setPais(String pais) {
+        this.pais = pais;
+    }
+
+    private String pais;
+
     public String getProvincia() {
         return provincia;
     }

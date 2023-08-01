@@ -1,103 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".InformationFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="16dp"
+    tools:context=".InformationFragment">
 
-    <LinearLayout
-        android:layout_width="260dp"
-        android:layout_height="509dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="30dp"
-        android:orientation="vertical"> <!-- Establece layout_gravity para centrar el contenido -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:verticalScrollbarPosition="right">
 
-        <TableLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/routeDetailTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Título"
-                    android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/routeDescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="description"
-                    android:textColor="#000000"
-                    android:textSize="14sp" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="15sp">
-
-                <TextView
-                    android:id="@+id/routeDetailTitle5"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Paradas"
-                    android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/routeStops"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="stops"
-                    android:textColor="#000000"
-                    android:textSize="14sp" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="50dp">
-
-            </TableRow>
-
-        </TableLayout>
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="160dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
-            android:text="Valorar" />
+            android:gravity="center"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="380dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TableLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/routeDetailTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Título"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <RatingBar
+                                android:id="@+id/ratingIndicatorBar"
+                                style="@style/Widget.AppCompat.RatingBar.Indicator"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="-15sp"
+                                android:contentDescription=""
+                                android:isIndicator="true"
+                                android:numStars="5"
+                                android:scaleX="0.5"
+                                android:scaleY="0.5"
+                                android:transformPivotX="0dp" />
+                        </RelativeLayout>
+
+                    </TableRow>
+
+                    <TextView
+                        android:id="@+id/routeDescription"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:justificationMode="inter_word"
+                        android:text="Descripción"
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/routeDetailTitle5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Paradas"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/routeStops"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center_vertical|start"
+                        android:justificationMode="inter_word"
+                        android:scrollbars="vertical"
+                        android:text="Parada 1\nParada 2\nParada 3\nParada 4\nParada 5\nParada 6\nParada 7\nParada 8\nParada 9\nParada 10"
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+
+                </TableLayout>
+
+                <Button
+                    android:id="@+id/ratingButton"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="30dp"
+                    android:onClick="ratingButtonClick"
+                    android:text="Valorar" />
+
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    style="@style/Widget.AppCompat.RatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:contentDescription=""/>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </FrameLayout>
-
-
-

@@ -61,7 +61,7 @@ public class RouteMapsFragment extends Fragment {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(AppConstants.API_BASE_URL) // Reemplaza esto con la URL base de tu servidor
+            .baseUrl(AppConstants.API_BASE_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build();
 
