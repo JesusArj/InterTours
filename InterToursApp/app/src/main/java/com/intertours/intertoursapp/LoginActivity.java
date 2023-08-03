@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText username, password;
 
+    private TextView register_txt;
+
     private final Gson gson = new GsonBuilder().setLenient().create();
 
     private final Retrofit retrofit = new Retrofit.Builder().baseUrl(AppConstants.API_BASE_URL).addConverterFactory(GsonConverterFactory.create(gson)).build();
@@ -41,8 +44,9 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         username = (EditText) findViewById(R.id.LOGIN_USERNAME);
         password = (EditText) findViewById(R.id.LOGIN_PASSWORD);
+        register_txt = (TextView) findViewById(R.id.registerTextView);  
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-     /*   sharedPref.edit().remove("jwt").commit();*/
+        sharedPref.edit().remove("jwt").commit();
         Call<Boolean> call = apiService.validate( sharedPref.getString("jwt", ""));
         call.enqueue(new Callback<Boolean>() {
             @Override
@@ -89,6 +93,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+    }
+    
+    public void registerClick(View view){
+        Toast.makeText(this, "PULSADO!!!", Toast.LENGTH_SHORT).show();
     }
 
 }

@@ -13,8 +13,12 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.intertours.intertoursapp.api.ApiService;
+import com.intertours.intertoursapp.api.request.RatingRequest;
 import com.intertours.intertoursapp.api.response.CoordenadasDTO;
+import com.intertours.intertoursapp.api.response.RatingResponse;
 import com.intertours.intertoursapp.api.response.RouteResponse;
 import com.intertours.intertoursapp.utils.AppConstants;
 import com.intertours.intertoursapp.utils.AppUtils;
@@ -28,6 +32,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
@@ -105,6 +110,37 @@ public class InformationFragment extends Fragment {
             @Override
             public void onFailure(Call<Float> call, Throwable t) {
                 Toast.makeText(getContext(), "ERROR", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ratingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Gson gson = new GsonBuilder().setLenient().create();
+                Retrofit retrofitPost = new Retrofit.Builder().baseUrl(AppConstants.API_BASE_URL).addConverterFactory(GsonConverterFactory.create(gson)).build();
+                ApiService apiServicePost = retrofitPost.create(ApiService.class);
+                RatingRequest request = new RatingRequest();
+                if(ratingBar.getRating() >= 1){
+                    request.setIdRuta(args.getInt("idRuta"));
+                    request.setNota((Float.valueOf(ratingBar.getRating())).intValue());
+                    Call<RatingResponse> call = apiServicePost.sendRouteRating(request, "jwt=" + args.getString("jwt"));
+                    call.enqueue(new Callback<RatingResponse>() {
+                        @Override
+                        public void onResponse(Call<RatingResponse> call, Response<RatingResponse> response) {
+                            if(response.isSuccessful()){
+                                Toast.makeText(getContext(), "Ruta valorada correctamente.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<RatingResponse> call, Throwable t) {
+                            Toast.makeText(getContext(), "Error al intentar valorar la ruta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }else{
+                    Toast.makeText(getContext(), "Debes seleccionar un número de estrellas.", Toast.LENGTH_SHORT).show();   
+                }
+                
             }
         });
 
