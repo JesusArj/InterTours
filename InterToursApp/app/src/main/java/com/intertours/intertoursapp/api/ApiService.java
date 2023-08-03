@@ -22,6 +22,9 @@ public interface ApiService {
     @POST("auth/login")
     Call<String> login(@Body AuthenticationRequest request);
 
+    @POST("auth/registerTurista")
+    Call<Void> register(@Body AuthenticationRequest request);
+
     @GET("auth/validateToken")
     Call<Boolean> validate(@Query("token") String token);
 

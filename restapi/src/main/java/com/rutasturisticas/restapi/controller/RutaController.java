@@ -79,10 +79,6 @@ public class RutaController {
 	@GetMapping("/valoracionUser")
 	public ResponseEntity<Integer> getRatingByUser(@RequestParam("id") Integer id,
 			@CookieValue(name = "jwt") String token) {
-		RutaDTO updateRuta = rutaService.getRutaById(id);
-		if (!updateRuta.getAutor().equals(jwtUtil.getUsernameFromToken(token))) {
-			return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-		}
 		return new ResponseEntity<Integer>(rutaService.getRatingByUser(jwtUtil.getUsernameFromToken(token), id),
 				HttpStatus.OK);
 	}
