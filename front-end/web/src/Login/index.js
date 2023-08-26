@@ -158,14 +158,14 @@ const Login = () => {
         variant="outlined">
         <Typography level="h1" fontSize="xl" sx={{ textAlign: "center" }}>
           {" "}
-          Bienvenid@ a EspaTours!{" "}
+          Bienvenid@ a InterTours!{" "}
         </Typography>
         <FormControl>
           <FormLabel>Username</FormLabel>
           <Input
             id="username"
             type="text"
-            placeholder="jesusarj"
+            placeholder="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />

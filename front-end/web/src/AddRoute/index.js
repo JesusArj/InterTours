@@ -276,7 +276,9 @@ const AddRoute = () => {
         routeDescription: location.state.routeEdit.descripcion,
         routeLocality: location.state.routeEdit.municipio,
         routeProvince: location.state.routeEdit.provincia,
+        routeCountry: location.state.routeEdit.pais,
       });
+      console.log(location.state.routeEdit);
       setStops((prev) => {
         const updatedStops = [...prev];
         const coordenadas = location.state.routeEdit.coordenadas;
