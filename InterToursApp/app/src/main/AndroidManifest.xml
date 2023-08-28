@@ -25,7 +25,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBD-G6oLUdzpDbD9mPRepdMhXgny0XP1BU" />
+            android:value="API_KEY" />
 
         <activity
             android:name=".RouteDetailActivity"

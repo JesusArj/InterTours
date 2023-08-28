@@ -1,9 +1,7 @@
 package com.intertours.intertoursapp.api;
 
-import com.intertours.intertoursapp.api.request.AudioRequest;
 import com.intertours.intertoursapp.api.request.AuthenticationRequest;
 import com.intertours.intertoursapp.api.request.RatingRequest;
-import com.intertours.intertoursapp.api.request.RouteRequest;
 import com.intertours.intertoursapp.api.response.RatingResponse;
 import com.intertours.intertoursapp.api.response.RouteResponse;
 
