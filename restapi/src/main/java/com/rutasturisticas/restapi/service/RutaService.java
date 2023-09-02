@@ -32,7 +32,9 @@ import com.rutasturisticas.restapi.dto.CoordenadasDTO;
 import com.rutasturisticas.restapi.dto.RutaDTO;
 import com.rutasturisticas.restapi.dto.ValoracionRequest;
 import com.rutasturisticas.restapi.util.RestApiConstants;
-
+/*
+ * CLASE SERVICE QUE USA EL CONTROLLER RUTA
+ */
 @Service
 @Transactional
 public class RutaService {

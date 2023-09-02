@@ -17,7 +17,7 @@ import com.rutasturisticas.restapi.filter.JwtFilter;
 import com.rutasturisticas.restapi.util.CustomPasswordEncoder;
 
 /*
- * CONFIGURACIÓN DE SEGURIDAD DE LA API. 
+ * ARCHIVO DE CONFIGURACIÓN DE SEGURIDAD DE LA API. 
  * SOBREESCRIBIMOS FUNCIONES DE SPRING SECURITY PARA ADAPTAR AL COMPORTAMIENTO DESEADO.
  */
 @EnableWebSecurity
