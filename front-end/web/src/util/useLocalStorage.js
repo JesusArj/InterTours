@@ -1,3 +1,7 @@
+/**
+ * FUNCIÓN CREADA PARA USAR EL LOCAL STORAGE DEL NAVEGADOR DEL USUARIO.
+ * EL USO PRINCIPAL ES MANEJAR EL JWT DEL USUARIO.
+ */
 import {useState, useEffect} from 'react';
 
 function useLocalState(defaultValue, key){

@@ -1,3 +1,6 @@
+/**
+ * FICHERO ENCARGADO DE RENDERIZAR LA APLICACIÓN
+ */
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";

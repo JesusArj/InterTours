@@ -1,3 +1,6 @@
+/**
+ * COMPONENTE SIDEBAR+HEADER
+ */
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -21,8 +24,12 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useNavigate } from "react-router-dom";
 import Cookie from "universal-cookie";
 
-const drawerWidth = 240;
 
+
+/**
+ * DECLARACIÓN DE VARIABLES,FUNCIONES Y COMPONENTES ESTILADOS
+ */
+const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -69,6 +76,9 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
+/**
+ * RENDERIZADO DE COMPONENTE
+ */
 export default function PersistentDrawerLeft({ children }) {
   const [open, setOpen] = React.useState(true);
 

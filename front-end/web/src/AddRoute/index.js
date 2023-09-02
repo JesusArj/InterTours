@@ -1,3 +1,7 @@
+/**
+ * PANTALLA PARA AÑADIR/EDITAR RUTA
+ */
+
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   TextField,
@@ -25,6 +29,9 @@ import NorthIcon from "@mui/icons-material/North";
 import { useLocation } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 
+/**
+ * DECLARACION DE FUNCIONES Y VARIABLES
+ */
 const AddRoute = () => {
   const location = useLocation();
   const [routeData, setRouteData] = useState({
@@ -125,7 +132,7 @@ const AddRoute = () => {
       stops[stops.length - 1].descripcionParada
     ) {
       setStops((prev) => [...prev, {}]);
-      setFiles((prev) => [...prev, null]); // Agregar una entrada vacía al array de archivos
+      setFiles((prev) => [...prev, null]);
     } else {
       setAlerts((prev) => ({ ...prev, showError1: true }));
     }
@@ -206,6 +213,7 @@ const AddRoute = () => {
     }
   };
 
+  //LLAMADA AL API PARA CREAR/EDITAR RUTA
   function sendCreateRouteRequest() {
     const formData = new FormData();
     if (location.state && location.state.isEdit) {
@@ -269,6 +277,7 @@ const AddRoute = () => {
     setAlerts((prev) => ({ ...prev, [alertName]: false }));
   };
 
+  //UseEffect para rellenar datos si es edición de ruta evaluando el objeto location.state
   useEffect(() => {
     if (location.state && location.state.isEdit && location.state.routeEdit) {
       setRouteData({
@@ -311,6 +320,10 @@ const AddRoute = () => {
       });
     }
   }, []);
+
+  /**
+  * RENDERIZADO DE PANTALLA
+  */
   return (
     <>
       {location.state && location.state.isEdit ? (

@@ -1,3 +1,9 @@
+/**
+ * COMPONENTE QUE COMPRUEBA SI EL USUARIO TIENE UN JWT VÁLIDO
+ * PARA NAVEGAR POR LA APLICACIÓN. 
+ * EN CASO TRUE DEVUELVE LA PANTALLA.
+ * EN CASO FALSE REDIRIGE AL LOGIN.
+ */
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useLocalState } from "../util/useLocalStorage";

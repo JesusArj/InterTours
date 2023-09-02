@@ -1,6 +1,8 @@
+/**
+ * PANTALLA DE PANEL DE GESTIÓN DE RUTAS
+ */
 import { useLocalState } from "../util/useLocalStorage";
 import Typography from "@mui/material/Typography";
-import PersistentDrawerLeft from "../Sidebar/index.js";
 import Alert from "@mui/material/Alert";
 import { useLocation } from "react-router-dom";
 import jwt_decode from "jwt-decode";
@@ -39,11 +41,12 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
 
-
+/**
+ * DECLARACIÓN DE VARIABLES Y FUNCIONES
+ */
 const MyRoutes = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
   const location = useLocation();
   const [jwt, setJwt] = useLocalState("", "jwt");
   const [data, setData] = useState([{}]);
@@ -75,23 +78,11 @@ const MyRoutes = () => {
     setModalIndex(index);
     setShowDelete(true);
   };
-
-  const handleClickOpenEditModal = (index) => {
-    setAlerts((prev) => ({ ...prev, showEditModalInfoAlert: true }));
-    setModalIndex(index);
-    editModalInfo.titulo = visibleRows[index] ? visibleRows[index].titulo : "";
-    editModalInfo.descripcion = visibleRows[index]
-      ? visibleRows[index].descripcion
-      : "";
-    setEditStops(
-      visibleRows[index] && visibleRows[index].coordenadas
-        ? visibleRows[index].coordenadas
-        : ""
-    );
+  //Navegacion a la pantalla de creación/edición de rutas
+  const handleClickEdit = (index) => {
     navigate("/add-ruta", {
       state: { isEdit: true, routeEdit: visibleRows[index] },
     });
-    setShowEdit(true);
   };
 
   const handleCloseDetailModal = () => {
@@ -102,15 +93,7 @@ const MyRoutes = () => {
     setShowDelete(false);
   };
 
-  const handleEditRouteChange = (e, fieldName) => {
-    setEditModalInfo((prev) => ({ ...prev, [fieldName]: e.target.value }));
-  };
-
-  const handleCloseEditModal = () => {
-    setShowEdit(false);
-    console.log(editStops);
-  };
-
+  //Llamada a la API que devuelve las rutas del usuario usando el jwt
   useEffect(() => {
     fetch(`api/rutas/${jwt_decode(jwt).sub}`)
       .then((response) => response.json())
@@ -157,15 +140,7 @@ const MyRoutes = () => {
     setAlerts((prev) => ({ ...prev, [alertName]: false }));
   };
 
-  const setDescriptionInArray = (value, arrayIndex) => {
-    const updatedStops = [...editStops]; 
-    updatedStops[arrayIndex] = {
-      ...updatedStops[arrayIndex], 
-      descripcionParada: value,
-    };
-    setEditStops(updatedStops);
-  };
-
+  //Función que llama a la API para borrar una ruta concreta, al aceptar la modal de confirmación.
   const handleAcceptDeleteModal = () => {
     fetch(`api/rutas/eliminarRuta/${visibleRows[modalIndex].idRuta}`, {
       method: "DELETE",
@@ -186,37 +161,6 @@ const MyRoutes = () => {
         setAlerts((prev) => ({ ...prev, showDeleteRouteSuccess: true }));
         return response.text();
       }
-    });
-  };
-
-  const handleAcceptEditModal = () => {
-    const ReqData = {
-      titulo: editModalInfo.titulo,
-      descripcion: editModalInfo.descripcion,
-      coordenadas: editStops,
-    };
-
-    fetch(`api/rutas/editarRuta/${visibleRows[modalIndex].idRuta}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(ReqData),
-    }).then((response) => {
-      if (response.status === 200) {
-        setShowEdit(false);
-        handleChangePage(null, 0);
-        setAlerts((prev) => ({ ...prev, showEditRouteSuccess: true }));
-        return response.json();
-      }
-    }).then((dataResponse) => {
-      console.log(dataResponse);
-      data.forEach((element, index) => {
-        if (element.idRuta === visibleRows[modalIndex].idRuta) {
-          data[index] = dataResponse;
-        }
-      });
-          visibleRows[modalIndex] = dataResponse;
     });
   };
   const emptyRows =
@@ -277,7 +221,7 @@ const MyRoutes = () => {
                         <VisibilityIcon fontSize="small" color="action" />
                       </IconButton>
                       <IconButton
-                        onClick={() => handleClickOpenEditModal(index)}>
+                        onClick={() => handleClickEdit(index)}>
                         <EditIcon fontSize="small" color="action" />
                       </IconButton>
                       <IconButton
@@ -437,131 +381,6 @@ const MyRoutes = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDetailModal}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        onClose={handleCloseEditModal}
-        open={showEdit}
-        maxWidth="xl"
-        fullWidth>
-        <DialogTitle>Editar ruta</DialogTitle>
-        {alerts.showEditModalInfoAlert && (
-          <Alert
-            severity="info"
-            onClose={() => {
-              handleAlertClose("showEditModalInfoAlert");
-            }}>
-            {" "}
-            Recuerda que solo algunos campos son editables. Si necesitas nuevas
-            paradas, por favor, genera una nueva ruta.{" "}
-          </Alert>
-        )}
-        <br />
-        <DialogContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="name"
-                value={
-                  editModalInfo.titulo
-                }
-                label="Nombre"
-                onChange={(e) => {
-                  handleEditRouteChange(e, "titulo");
-                }}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="descripcion"
-                value={editModalInfo.descripcion}
-                onChange={(e) => {
-                  handleEditRouteChange(e, "descripcion");
-                }}
-                label="Descripción"
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="municipio"
-                value={
-                  visibleRows[modalIndex]
-                    ? visibleRows[modalIndex].municipio
-                    : ""
-                }
-                label="Municipio"
-                fullWidth
-                disabled
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="provincia"
-                value={
-                  visibleRows[modalIndex]
-                    ? visibleRows[modalIndex].provincia
-                    : ""
-                }
-                label="provincia"
-                fullWidth
-                disabled
-              />
-            </Grid>
-            {visibleRows[modalIndex] &&
-              visibleRows[modalIndex].coordenadas &&
-              visibleRows[modalIndex].coordenadas.map((element, index) => (
-                <Grid item xs={12} key={index}>
-                  <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls={"panel" + index + "d-content"}
-                      id={"panel" + index + "d-header"}>
-                      <Typography>
-                        {index + 1 + "- \t" + element.nombreParada}{" "}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                          <TextField
-                            id={"nombreParada" + index}
-                            label="Nombre"
-                            fullWidth
-                            value={element.nombreParada}
-                            disabled
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <TextField
-                            id={"descripcionParada" + index}
-                            label="Descripción"
-                            value={
-                              editStops[index] &&
-                              editStops[index].descripcionParada
-                                ? editStops[index].descripcionParada
-                                : ""
-                            }
-                            onChange={(e) => {
-                              setDescriptionInArray(e.target.value, index);
-                            }}
-                            multiline
-                            minRows={2}
-                            fullWidth
-                          />
-                        </Grid>
-                      </Grid>
-                    </AccordionDetails>
-                  </Accordion>
-                </Grid>
-              ))}
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAcceptEditModal}>Editar</Button>
-          <Button onClick={handleCloseEditModal}>Cerrar</Button>
         </DialogActions>
       </Dialog>
     </>

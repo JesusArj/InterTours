@@ -1,3 +1,6 @@
+/**
+ * PANTALLA PARA LOGIN/REGISTRO
+ */
 import React, { useState } from "react";
 import { useLocalState } from "../util/useLocalStorage";
 import Button from "@mui/joy/Button";
@@ -19,6 +22,9 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Login = () => {
+  /**
+  * DECLARACIÓN DE VARIABLES Y FUNCIONES
+  */
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [registerUsername, setRegisterUsername] = useState("");
@@ -37,6 +43,7 @@ const Login = () => {
 
   const handleClickCloseAlert = () => setShowRegisterSuccessAlert(false);
 
+  //Comprobaciones de formulario de registro y llamada a la API en caso OK.
   function sendRegisterRequest() {
     if (
       registerUsername === "" ||
@@ -81,6 +88,7 @@ const Login = () => {
     });
   }
 
+  //Llamada a la API para hacer LOGIN
   function sendLoginRequest() {
     const requestBody = {
       username: username,
@@ -112,6 +120,9 @@ const Login = () => {
       });
   }
 
+  /**
+  * RENDERIZADO DE PANTALLA
+  */
   return (
     <>
     {showRegisterSuccessAlert && ( <Alert

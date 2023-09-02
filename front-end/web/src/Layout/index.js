@@ -1,3 +1,6 @@
+/**
+* Layout para header+Sidebar con un componente en su interior
+*/
 import React from 'react';
 import PersistentDrawerLeft from '../Sidebar';
 

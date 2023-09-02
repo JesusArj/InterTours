@@ -1,3 +1,6 @@
+/**
+ * FICHERO PARA MONTAR LA NAVEGACIÓN DE LA APLICACIÓN
+ */
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import AddRoute from "./AddRoute";
