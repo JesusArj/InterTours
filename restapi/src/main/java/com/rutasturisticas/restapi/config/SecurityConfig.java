@@ -16,6 +16,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.rutasturisticas.restapi.filter.JwtFilter;
 import com.rutasturisticas.restapi.util.CustomPasswordEncoder;
 
+/*
+ * CONFIGURACIÓN DE SEGURIDAD DE LA API. 
+ * SOBREESCRIBIMOS FUNCIONES DE SPRING SECURITY PARA ADAPTAR AL COMPORTAMIENTO DESEADO.
+ */
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -39,18 +43,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(userDetailsService).passwordEncoder(customPasswordEncoder.getPasswordEncoder());
 	}
 
+	//Función principal de configuración de seguridad HTTP
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http = http.csrf().disable().cors().disable();
 
 		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
-
+		//Se devuelve un código de respuesta 401 UNAUTHORIZED en caso de no tener un jwt válido para atacar al endpoint
 		http = http.exceptionHandling().authenticationEntryPoint((request, response, ex) -> {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
 		}).and();
-
+		//Permitimos request sin JWT los endpoints de login y registro. (/api/auth/** ---> LoginController.java)
 		http.authorizeRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
-
+		//Añadimos nuestro jwtFilter
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 

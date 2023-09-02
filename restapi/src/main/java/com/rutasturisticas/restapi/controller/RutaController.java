@@ -29,7 +29,9 @@ import com.rutasturisticas.restapi.dto.RutaDTO;
 import com.rutasturisticas.restapi.dto.ValoracionRequest;
 import com.rutasturisticas.restapi.service.RutaService;
 import com.rutasturisticas.restapi.util.JwtUtil;
-
+/*
+ * CONTROLLER QUE CONTIENE SERVICIOS RELACIONADOS CON LA GESTIÓN DE RUTAS TURÍSTICAS Y SUS COORDENADAS.
+ */
 @RestController
 @RequestMapping("/api/rutas")
 public class RutaController {
@@ -40,12 +42,14 @@ public class RutaController {
 	@Autowired
 	private JwtUtil jwtUtil;
 
+	//Obtiene los datos de una ruta mediante su identificador numérico
 	@GetMapping("/detalleRuta/{id}")
 	public ResponseEntity<RutaDTO> getRutaById(@PathVariable("id") int id) {
 		RutaDTO rutaEntity = rutaService.getRutaById(id);
 		return new ResponseEntity<RutaDTO>(rutaEntity, HttpStatus.OK);
 	}
-
+	
+	//Obtiene una lista de rutas pasándole como Query Params provincia, municipio y país.
 	@GetMapping("/detalleRuta")
 	public ResponseEntity<List<RutaDTO>> getRutaByProvinciaAndMunicipio(@RequestParam("provincia") String provincia,
 			@RequestParam("municipio") String municipio, @RequestParam("pais") String pais) {
@@ -53,12 +57,14 @@ public class RutaController {
 		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
 	}
 
+	//Obtiene una lista de rutas pasándole como Path Param un nombre de autor
 	@GetMapping("/{autor}")
 	public ResponseEntity<List<RutaDTO>> getRutasByAutor(@PathVariable("autor") String autor) {
 		List<RutaDTO> rutaEntity = rutaService.getRutasByAutor(autor);
 		return new ResponseEntity<List<RutaDTO>>(rutaEntity, HttpStatus.OK);
 	}
 
+	//Obtiene el audio de una coordenada de una ruta pasandole como Query Params el idRuta y su orden concreto.
 	@GetMapping("/audio")
 	public ResponseEntity<byte[]> getAudioByRutaAndOrden(@RequestParam("idRuta") Integer id,
 			@RequestParam("orden") Integer orden) {
@@ -71,11 +77,13 @@ public class RutaController {
 
 	}
 
+	//Obtiene la valoración numérica de una ruta mediante su ID.
 	@GetMapping("/valoracion/{id}")
 	public ResponseEntity<Float> getRatingByRouteId(@PathVariable("id") Integer id) {
 		return new ResponseEntity<Float>(rutaService.getRatingByRouteId(id), HttpStatus.OK);
 	}
 
+	//Obtiene la valoración de un usuario mediante el jwt enviado por el mismo.
 	@GetMapping("/valoracionUser")
 	public ResponseEntity<Integer> getRatingByUser(@RequestParam("id") Integer id,
 			@CookieValue(name = "jwt") String token) {
@@ -83,6 +91,7 @@ public class RutaController {
 				HttpStatus.OK);
 	}
 
+	//Inserta una ruta en el sistema. MultipartHttpServletRequest para que se puedan enviar los archivos de audio en la misma request.
 	@PostMapping("/insertarRuta/")
 	public ResponseEntity<String> insertRuta(MultipartHttpServletRequest request,
 			@CookieValue(name = "jwt") String token) {
@@ -115,7 +124,8 @@ public class RutaController {
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
-
+	
+	//Inserta una valoración de usuario en una ruta concreta.
 	@PostMapping("/insertarValoracion")
 	public ResponseEntity<ValoracionEntity> insertRating(@RequestBody ValoracionRequest dto,
 			@CookieValue(name = "jwt") String token) {
@@ -128,6 +138,7 @@ public class RutaController {
 
 	}
 
+	//Elimina una ruta del sistema mediante su id. Solo puede ser borrada por el usuario autor.
 	@DeleteMapping("/eliminarRuta/{id}")
 	public ResponseEntity<String> deleteRuta(@PathVariable("id") int id, @CookieValue(name = "jwt") String token) {
 		String response = null;
@@ -146,6 +157,7 @@ public class RutaController {
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
 
+	//Edita una ruta del sistema. Solo puede ser editada por su autor.
 	// Post porque MultipartHttpServletRequest solo permite POST
 	@PostMapping("/editarRuta/{id}")
 	public ResponseEntity<?> editRuta(@PathVariable("id") Integer id, MultipartHttpServletRequest request,

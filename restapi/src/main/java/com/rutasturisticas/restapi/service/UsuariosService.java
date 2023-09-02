@@ -16,7 +16,9 @@ import com.rutasturisticas.restapi.data.entity.UsuarioEntity;
 import com.rutasturisticas.restapi.data.repository.AuthorityRepository;
 import com.rutasturisticas.restapi.data.repository.UsuarioRepository;
 import com.rutasturisticas.restapi.dto.AuthenticationRequest;
-
+/*
+ * CLASE SERVICE QUE USAN LOS CONTROLLERS USUARIOS Y LOGIN
+ */
 @Service
 @Transactional
 public class UsuariosService {

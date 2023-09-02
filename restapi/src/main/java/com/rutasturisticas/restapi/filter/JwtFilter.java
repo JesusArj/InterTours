@@ -24,7 +24,9 @@ import com.rutasturisticas.restapi.util.JwtUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
-
+/*
+ * CLASE QUE SIRVE COMO FILTRO DE CUALQUIER REQUEST (EXCEPTO ENDPOINTS EXENTOS) PARA COMPROBAR EL JWT INFORMADO
+ */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -43,7 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// Get authorization header and validate
+		// Obtenemos el header de autorización
 		Optional<Cookie> jwtOpt = Arrays.stream(request.getCookies()).filter(cookie -> "jwt".equals(cookie.getName()))
 				.findAny();
 
@@ -55,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		String token = jwtOpt.get().getValue();
 
 		UserDetails userDetails = null;
-
+		//buscamos el usuario asociado a ese JWT
 		try {
 			userDetails = usuarioRepository.findByUsername(jwtUtil.getUsernameFromToken(token)).orElse(null);
 		} catch (ExpiredJwtException | SignatureException e) {
@@ -63,7 +65,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// Get jwt token and validate
+		// Validamos que el jwt sea válido (no esté caducado etc)
 		if (!jwtUtil.validateToken(token, userDetails)) {
 			filterChain.doFilter(request, response);
 			return;
@@ -74,7 +76,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-		// this is where the authentication magic happens and the user is now valid!
+		// Validamos al usuario
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		filterChain.doFilter(request, response);

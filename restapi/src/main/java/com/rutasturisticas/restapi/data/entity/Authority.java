@@ -6,7 +6,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.springframework.security.core.GrantedAuthority;
-
+/*
+ * ENTITY AUTHORITY
+ */
 @Entity(name = "authorities")
 public class Authority implements GrantedAuthority {
 

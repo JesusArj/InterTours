@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.rutasturisticas.restapi.service.UsuariosService;
-
+/*
+ * CONTROLLER QUE CONTIENE SERVICIOS RELACIONADOS CON LA GESTIÓN DE DATOS DE USUARIO.
+ * EN ESTE MOMENTO NO ESTÁ EN USO, PERO LO DEJAREMOS PARA FUTURAS MEJORAS EN LOS SISTEMAS.
+ */
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuariosController {

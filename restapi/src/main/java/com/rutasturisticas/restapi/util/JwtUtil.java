@@ -16,6 +16,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+/*
+ * CLASE QUE CONTIENE UTILIDADES PARA GESTIONAR LOS Json Web Tokens 
+ */
 @Component
 public class JwtUtil implements Serializable {
 

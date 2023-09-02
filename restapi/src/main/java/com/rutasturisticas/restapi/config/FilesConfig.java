@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
+/*
+ * CONFIGURACIÓN QUE CONTROLA EL TAMAÑO MÁXIMO DE ARCHIVO QUE SE PUEDE SUBIR AL SERVIDOR
+ */
 @EnableAutoConfiguration
 @Configuration
 public class FilesConfig {

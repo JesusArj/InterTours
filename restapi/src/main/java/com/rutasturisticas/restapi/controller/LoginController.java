@@ -26,6 +26,9 @@ import com.rutasturisticas.restapi.util.JwtUtil;
 import ch.qos.logback.core.util.Duration;
 import io.jsonwebtoken.ExpiredJwtException;
 
+/*
+ * CONTROLLER QUE CONTIENE SERVICIOS RELACIONADOS CON LA AUTENTICACIÓN Y REGISTRO DE USUARIOS
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
@@ -42,6 +45,7 @@ public class LoginController {
 	@Autowired
 	private UsuariosService usuariosService;
 
+	//Login de usuario. Devuelve un JWT que pasa a ser válido para ese usuario en la aplicación.
 	@PostMapping("login")
 	public ResponseEntity<?> login(@RequestBody AuthenticationRequest request) {
 		try {
@@ -60,18 +64,22 @@ public class LoginController {
 		}
 	}
 
+	//Registra un usuario asignándole el rol de guía turístico. Consumido por la aplicación web.
 	@PostMapping("/registerGuiaTuristico")
 	public ResponseEntity<?> register(@RequestBody AuthenticationRequest request) {
 		return usuariosService.insertarGuiaTuristico(request) ? ResponseEntity.status(HttpStatus.OK).build()
 				: ResponseEntity.status(HttpStatus.CONFLICT).build();
 	}
-
+	
+	//Registra un usuario asignándole el rol de turista. Consumido por la aplicación móvil.
 	@PostMapping("/registerTurista")
 	public ResponseEntity<?> registerTurista(@RequestBody AuthenticationRequest request) {
 		return usuariosService.insertarTurista(request) ? ResponseEntity.status(HttpStatus.OK).build()
 				: ResponseEntity.status(HttpStatus.CONFLICT).build();
 	}
-
+	
+	//Valida que un token es válido, teniendo en cuenta los datos de inicio de sesión del usuario que consume el servicio.
+	//Consumido por la aplicación web.
 	@GetMapping("/validate")
 	public ResponseEntity<?> validateToken(@RequestParam("token") String token,
 			@AuthenticationPrincipal UsuarioEntity user) {
@@ -83,6 +91,7 @@ public class LoginController {
 		}
 	}
 
+	//Valida que un token es válido, sin el usuario/contraseña. Consumido por la aplicación móvil.
 	@GetMapping("/validateToken")
 	public ResponseEntity<?> validateTokenWithoutUser(@RequestParam("token") String token) {
 		try {
