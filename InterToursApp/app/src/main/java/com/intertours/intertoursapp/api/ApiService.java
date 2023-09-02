@@ -15,7 +15,9 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-
+/*
+* INTERFAZ USADA PARA LLAMAR A LA API REST USANDO LA TECNOLOGÍA RETROFIT2
+*/
 public interface ApiService {
     @POST("auth/login")
     Call<String> login(@Body AuthenticationRequest request);

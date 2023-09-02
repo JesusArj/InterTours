@@ -14,7 +14,9 @@ import com.intertours.intertoursapp.api.response.RouteResponse;
 
 import java.io.Serializable;
 import java.util.List;
-
+/*
+ * PANTALLA DE VISUALIZACIÓN DE RUTAS ENCONTRADAS EN LA BÚSQUEDA
+ */
 public class RouteListActivity extends AppCompatActivity {
     private ListView listView;
     private TextView textView;
@@ -51,7 +53,7 @@ public class RouteListActivity extends AppCompatActivity {
         // Recorrer cada elemento visible y cambiar el fondo
         for (int i = 0; i < visibleItemCount; i++) {
             View itemView = listView.getChildAt(i);
-            // Cambiar el color de fondo a lo que desees
+            // Cambiar el color de fondo
             itemView.setBackgroundColor(getResources().getColor(R.color.list_item_default_color));
         }
     }

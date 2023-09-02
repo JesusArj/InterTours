@@ -15,7 +15,10 @@ import com.intertours.intertoursapp.api.response.RouteResponse;
 import com.intertours.intertoursapp.utils.AppConstants;
 
 import java.util.List;
-
+/*
+ * ADAPTER PARA MODIFICAR EL COMPORTAMIENTO DE ARRAYADAPTER Y MOSTRAR DE FORMA
+ * PERSONALIZADA LAS RUTAS ENCONTRADAS EN FORMATO LISTA
+ */
 public class CustomListAdapter extends ArrayAdapter<RouteResponse> {
 
     private final int resourceLayout;
@@ -40,7 +43,6 @@ public class CustomListAdapter extends ArrayAdapter<RouteResponse> {
         RouteResponse route = items.get(position);
 
         if (route != null) {
-
             CardView cardView = v.findViewById(R.id.cardView);
             TextView titleTextView = v.findViewById(R.id.titleTextView);
             TextView subtitleTextView = v.findViewById(R.id.subtitleTextView);

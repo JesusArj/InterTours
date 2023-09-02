@@ -19,7 +19,9 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+/*
+ * PANTALLA DE DETALLE DE RUTA. ENGLOBA EL FRAGMENT INFORMATION Y EL FRAGMENT MAPA.
+ */
 public class RouteDetailActivity extends AppCompatActivity {
 
     private BottomNavigationView nav;

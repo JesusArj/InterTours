@@ -52,7 +52,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
-
+/*
+ * FRAGMENTO DE MAPA. VISUALIZA LA RUTA EN EL MAPA Y PERMITE REPRODUCIR AUDIOS,
+ * VER UBICACIÓN EN TIEMPO REAL EN EL MAPA Y EL DETALLE DE CADA PARADA (MARKER)
+ */
 public class RouteMapsFragment extends Fragment {
 
     private FloatingActionButton fab;
