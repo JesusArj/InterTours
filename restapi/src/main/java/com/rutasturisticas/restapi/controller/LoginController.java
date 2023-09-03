@@ -60,7 +60,7 @@ public class LoginController {
 					.maxAge(Duration.buildByDays(365).getMilliseconds()).build();
 			return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
 		} catch (BadCredentialsException ex) {
-			return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).build();
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
 
