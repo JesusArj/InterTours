@@ -46,7 +46,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class HomeActivity extends AppCompatActivity {
 
-    private TextView bienvenida_txt, result;
+    private TextView bienvenida_txt;
 
     private AutocompleteSupportFragment autocomplete;
 
