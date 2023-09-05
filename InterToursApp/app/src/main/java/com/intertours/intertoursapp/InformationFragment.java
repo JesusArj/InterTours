@@ -176,7 +176,4 @@ public class InformationFragment extends Fragment {
         description.setText(descripcion);
         stops.setText(paradas);
     }
-    public void ratingButtonClick(View view){
-        Toast.makeText(getContext(), "PULSADO!", Toast.LENGTH_SHORT).show();
-    }
 }
